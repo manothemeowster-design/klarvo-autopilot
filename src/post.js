@@ -1,4 +1,4 @@
-port fetch from 'node-fetch';
+import fetch from 'node-fetch';
  
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const IG_ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN;

@@ -246,15 +246,31 @@ async function renderAndUploadSlides(content) {
   return urls;
 }
 
-// ─── UPLOAD IMAGE (0x0.st) ───────────────────────────────────────────────────
+// ─── UPLOAD TO GITHUB (no external service needed) ───────────────────────────
 async function uploadToImgbb(buffer, name) {
-  const { FormData, Blob } = await import("node-fetch");
-  const form = new FormData();
-  form.append("file", new Blob([buffer], { type: "image/png" }), `${name || "slide"}.png`);
-  const res = await fetch("https://0x0.st", { method: "POST", body: form });
-  const url = (await res.text()).trim();
-  if (!url.startsWith("http")) throw new Error("0x0.st upload failed: " + url);
-  return url;
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const REPO = process.env.GITHUB_REPOSITORY; // auto-set by Actions
+  const fileName = `slides/${Date.now()}_${name || "slide"}.png`;
+  const base64 = buffer.toString("base64");
+
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${fileName}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${GITHUB_TOKEN}`,
+      "Content-Type": "application/json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    },
+    body: JSON.stringify({
+      message: `slide: ${fileName}`,
+      content: base64,
+    })
+  });
+
+  const data = await res.json();
+  if (!data.content) throw new Error("GitHub upload failed: " + JSON.stringify(data));
+  // Use raw URL — publicly accessible even from private repos via token
+  const rawUrl = `https://raw.githubusercontent.com/${REPO}/main/${fileName}`;
+  return rawUrl;
 }
 
 // ─── POST CAROUSEL TO INSTAGRAM ───────────────────────────────────────────────

@@ -1,402 +1,505 @@
-// ─── COLOR SCHEMES ────────────────────────────────────────────────────────────
+// ─── DESIGN SYSTEMS (extracted from reference images) ────────────────────────
+//
+// EDITORIAL   → Image 7: white/grid bg, massive black text, red accent pill, newspaper feel
+// CREAM       → Image 2/5: warm cream bg, teal accent, serif+sans mix, floating labels
+// BOLD_RED    → Image 4: solid red bg, white text, mixed weights, high impact
+// MODERN      → Image 6: warm beige, orange accent, clean sans, product feel
+// DARK_GOLD   → Image 1 (ours): dark red, gold accent, grid overlay
+//
+// Each scheme = complete visual identity: bg, text, accent, font style, decorators
+
 const SCHEMES = {
-  RED_GOLD: {
-    bg:        'linear-gradient(145deg, #130606 0%, #240c0c 45%, #1a0808 100%)',
-    card:      '#8B1A1A',
-    headline:  '#F2E4C4',
-    body:      'rgba(242,228,196,0.72)',
-    accent:    '#C9A84C',
-    accentDim: 'rgba(201,168,76,0.45)',
-    grid:      'rgba(201,168,76,0.045)',
-    edgeA:     '#C9A84C',
-    edgeB:     '#8B1A1A',
-    bgNum:     'rgba(139,26,26,0.28)',
-    label:     '#C9A84C',
+
+  // ── EDITORIAL ─────────────────────────────────────────────────────────────
+  // Reference: Image 7 — white grid background, huge black bold text,
+  // red accent boxes/pills, dashed decorative lines, newspaper/zine energy
+  EDITORIAL: {
+    bg:         '#F7F7F7',
+    gridColor:  'rgba(0,0,0,0.06)',
+    headline:   '#0A0A0A',
+    headlineAlt:'#0A0A0A',
+    body:       '#3A3A3A',
+    bodyLight:  '#888888',
+    accent:     '#FF2200',
+    accentText: '#FFFFFF',
+    accentBg:   '#FF2200',
+    label:      '#888888',
+    labelBg:    'transparent',
+    border:     'rgba(0,0,0,0.12)',
+    swipeText:  '#0A0A0A',
+    headlineFont: "'Anton', sans-serif",
+    bodyFont:   "'DM Sans', sans-serif",
+    monoFont:   "'DM Mono', monospace",
+    dark: false,
   },
-  BLACK_WHITE: {
-    bg:        'linear-gradient(145deg, #080808 0%, #111111 50%, #0a0a0a 100%)',
-    card:      '#1a1a1a',
-    headline:  '#FFFFFF',
-    body:      'rgba(255,255,255,0.65)',
-    accent:    '#FFFFFF',
-    accentDim: 'rgba(255,255,255,0.35)',
-    grid:      'rgba(255,255,255,0.04)',
-    edgeA:     '#FFFFFF',
-    edgeB:     '#444444',
-    bgNum:     'rgba(255,255,255,0.06)',
-    label:     'rgba(255,255,255,0.5)',
+
+  // ── CREAM MINIMAL ─────────────────────────────────────────────────────────
+  // Reference: Images 2 & 5 — warm off-white, mixed serif+sans typography,
+  // teal/blue accent, floating pill labels, clean breathing room, editorial feel
+  CREAM: {
+    bg:         '#F4EFE6',
+    gridColor:  'rgba(0,0,0,0.04)',
+    headline:   '#1A1A1A',
+    headlineAlt:'#0A6B5E',
+    body:       '#444444',
+    bodyLight:  '#888888',
+    accent:     '#0D9488',
+    accentText: '#FFFFFF',
+    accentBg:   '#0D9488',
+    label:      '#999999',
+    labelBg:    'rgba(0,0,0,0.06)',
+    border:     'rgba(0,0,0,0.1)',
+    swipeText:  '#0D9488',
+    headlineFont: "'Anton', sans-serif",
+    bodyFont:   "'DM Sans', sans-serif",
+    monoFont:   "'DM Mono', monospace",
+    dark: false,
   },
-  GREEN_LIME: {
-    bg:        'linear-gradient(145deg, #020f05 0%, #061a09 50%, #030d05 100%)',
-    card:      '#0a2e10',
-    headline:  '#E8FFE8',
-    body:      'rgba(200,255,180,0.7)',
-    accent:    '#7FFF00',
-    accentDim: 'rgba(127,255,0,0.4)',
-    grid:      'rgba(127,255,0,0.04)',
-    edgeA:     '#7FFF00',
-    edgeB:     '#1a5c20',
-    bgNum:     'rgba(10,60,15,0.5)',
-    label:     '#7FFF00',
+
+  // ── BOLD RED ──────────────────────────────────────────────────────────────
+  // Reference: Image 4 — saturated solid color BG, white text at multiple
+  // weights (thin label + ultra-bold headline), brand photography energy
+  BOLD_RED: {
+    bg:         '#CC0A0A',
+    gridColor:  'rgba(255,255,255,0.06)',
+    headline:   '#FFFFFF',
+    headlineAlt:'#FFD700',
+    body:       'rgba(255,255,255,0.82)',
+    bodyLight:  'rgba(255,255,255,0.5)',
+    accent:     '#FFD700',
+    accentText: '#000000',
+    accentBg:   '#FFD700',
+    label:      'rgba(255,255,255,0.55)',
+    labelBg:    'rgba(255,255,255,0.12)',
+    border:     'rgba(255,255,255,0.2)',
+    swipeText:  '#FFD700',
+    headlineFont: "'Anton', sans-serif",
+    bodyFont:   "'DM Sans', sans-serif",
+    monoFont:   "'DM Mono', monospace",
+    dark: true,
   },
-  NAVY_BLUE: {
-    bg:        'linear-gradient(145deg, #020612 0%, #050d24 50%, #020810 100%)',
-    card:      '#0a1640',
-    headline:  '#E8F0FF',
-    body:      'rgba(180,210,255,0.7)',
-    accent:    '#4D9FFF',
-    accentDim: 'rgba(77,159,255,0.4)',
-    grid:      'rgba(77,159,255,0.045)',
-    edgeA:     '#4D9FFF',
-    edgeB:     '#1a3a8a',
-    bgNum:     'rgba(10,22,64,0.6)',
-    label:     '#4D9FFF',
+
+  // ── MODERN BEIGE ──────────────────────────────────────────────────────────
+  // Reference: Image 6 — warm beige/cream, orange accent, mixed font weights,
+  // clean product/brand feel, subtle shadows, modern SaaS aesthetic
+  MODERN: {
+    bg:         '#FAF6F0',
+    gridColor:  'rgba(0,0,0,0.04)',
+    headline:   '#111111',
+    headlineAlt:'#FF5C00',
+    body:       '#444444',
+    bodyLight:  '#999999',
+    accent:     '#FF5C00',
+    accentText: '#FFFFFF',
+    accentBg:   '#FF5C00',
+    label:      '#999999',
+    labelBg:    'rgba(0,0,0,0.06)',
+    border:     'rgba(0,0,0,0.1)',
+    swipeText:  '#FF5C00',
+    headlineFont: "'Anton', sans-serif",
+    bodyFont:   "'DM Sans', sans-serif",
+    monoFont:   "'DM Mono', monospace",
+    dark: false,
   },
-  CHARCOAL_ORANGE: {
-    bg:        'linear-gradient(145deg, #0e0a06 0%, #1a1208 50%, #0e0a06 100%)',
-    card:      '#2a1a08',
-    headline:  '#FFF8F0',
-    body:      'rgba(255,235,200,0.7)',
-    accent:    '#FF6B00',
-    accentDim: 'rgba(255,107,0,0.4)',
-    grid:      'rgba(255,107,0,0.045)',
-    edgeA:     '#FF6B00',
-    edgeB:     '#8B3A00',
-    bgNum:     'rgba(60,30,0,0.4)',
-    label:     '#FF6B00',
+
+  // ── DARK GOLD (original) ──────────────────────────────────────────────────
+  // Reference: Image 1 (our posts) — dark maroon, gold accent, grid overlay
+  DARK_GOLD: {
+    bg:         '#130606',
+    gridColor:  'rgba(201,168,76,0.05)',
+    headline:   '#F2E4C4',
+    headlineAlt:'#C9A84C',
+    body:       'rgba(242,228,196,0.72)',
+    bodyLight:  'rgba(242,228,196,0.4)',
+    accent:     '#C9A84C',
+    accentText: '#0A0A0A',
+    accentBg:   '#C9A84C',
+    label:      'rgba(201,168,76,0.6)',
+    labelBg:    'rgba(201,168,76,0.1)',
+    border:     'rgba(201,168,76,0.2)',
+    swipeText:  '#C9A84C',
+    headlineFont: "'Anton', sans-serif",
+    bodyFont:   "'DM Sans', sans-serif",
+    monoFont:   "'DM Mono', monospace",
+    dark: true,
   },
 };
 
-// Pick scheme based on day
-const SCHEME_ORDER = ['RED_GOLD','BLACK_WHITE','GREEN_LIME','NAVY_BLUE','CHARCOAL_ORANGE','RED_GOLD','BLACK_WHITE'];
-const day = new Date().getUTCDay();
-const scheme = SCHEMES[SCHEME_ORDER[day]];
+// ─── SCHEME ROTATION BY DAY ───────────────────────────────────────────────────
+const SCHEME_ORDER = ['EDITORIAL','CREAM','BOLD_RED','MODERN','DARK_GOLD','EDITORIAL','CREAM'];
+const day = new Date().getUTCDay(); // 0=Sun ... 6=Sat
+const S = SCHEMES[SCHEME_ORDER[day]];
 
 // ─── FONTS ────────────────────────────────────────────────────────────────────
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&family=DM+Mono:wght@400;500&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400&family=DM+Mono:wght@400;500&display=swap');`;
 
-// ─── BASE STYLES ──────────────────────────────────────────────────────────────
-function baseStyles(s) {
+// ─── BASE CSS ─────────────────────────────────────────────────────────────────
+function base() {
   return `
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:1080px; height:1080px; overflow:hidden; }
-  body {
-    background: ${s.bg};
-    color: ${s.headline};
-    font-family: 'DM Sans', sans-serif;
-    position: relative;
-  }
-  .grid {
-    position:absolute; inset:0; pointer-events:none;
-    background-image:
-      linear-gradient(${s.grid} 1px, transparent 1px),
-      linear-gradient(90deg, ${s.grid} 1px, transparent 1px);
-    background-size: 54px 54px;
-  }
-  .edge-top {
-    position:absolute; top:0; left:0; right:0; height:3px;
-    background: linear-gradient(90deg, transparent 0%, ${s.edgeA} 40%, ${s.edgeB} 70%, transparent 100%);
-  }
-  .edge-bottom {
-    position:absolute; bottom:0; left:0; right:0; height:3px;
-    background: linear-gradient(90deg, transparent 0%, ${s.edgeB} 30%, ${s.edgeA} 60%, transparent 100%);
-  }
-  .top-bar {
-    position:absolute; top:42px; left:60px; right:60px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .agency {
-    font-family:'DM Mono', monospace; font-size:13px;
-    color:${s.accent}; letter-spacing:0.2em; text-transform:uppercase;
-  }
-  .cat-label {
-    font-family:'DM Mono', monospace; font-size:12px;
-    color:${s.accentDim}; letter-spacing:0.14em; text-transform:uppercase;
-  }
-  .bottom-bar {
-    position:absolute; bottom:38px; left:60px; right:60px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .handle {
-    font-family:'DM Mono', monospace; font-size:13px;
-    color:${s.accentDim}; letter-spacing:0.08em;
-  }
-  .counter {
-    font-family:'DM Mono', monospace; font-size:13px;
-    color:${s.accentDim}; letter-spacing:0.08em;
-  }
-  .content {
-    position:absolute; top:118px; bottom:96px;
-    left:60px; right:60px;
-    display:flex; flex-direction:column; justify-content:center;
-  }
-  .sec-label {
-    font-family:'DM Mono', monospace; font-size:12px;
-    color:${s.label}; letter-spacing:0.22em;
-    text-transform:uppercase; margin-bottom:20px;
-  }
-  .gold-bar { width:56px; height:2px; background:${s.accent}; margin:24px 0; }
-  .gold-rule {
-    width:100%; height:1px; margin:20px 0;
-    background: linear-gradient(90deg, ${s.accent} 0%, ${s.accentDim} 70%, transparent 100%);
-  }
-  .bg-num {
-    position:absolute; font-family:'Anton', sans-serif;
-    font-size:320px; color:${s.bgNum};
-    right:20px; top:50%; transform:translateY(-50%);
-    line-height:1; user-select:none; pointer-events:none;
-    letter-spacing:-0.05em;
-  }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:1080px; height:1080px; overflow:hidden; }
+    body {
+      background: ${S.bg};
+      font-family: ${S.bodyFont};
+      position: relative;
+    }
+    /* subtle grid overlay */
+    .grid {
+      position:absolute; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(${S.gridColor} 1px, transparent 1px),
+        linear-gradient(90deg, ${S.gridColor} 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
   `;
 }
 
 // ─── SHELL ────────────────────────────────────────────────────────────────────
-function shell(num, total, category, extraCSS, innerHTML) {
+function shell(num, total, css, body) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>
-${FONTS}
-${baseStyles(scheme)}
-${extraCSS}
-</style></head><body>
-<div class="grid"></div>
-<div class="edge-top"></div>
-<div class="edge-bottom"></div>
-<div class="top-bar">
-  <span class="agency">KLARVO.AI</span>
-  <span class="cat-label">${category}</span>
-</div>
-<div class="bottom-bar">
-  <span class="handle">@klarvo.ai</span>
-  <span class="counter">0${num} / 0${total}</span>
-</div>
-${innerHTML}
-</body></html>`;
+<style>${FONTS}${base()}${css}</style></head>
+<body><div class="grid"></div>${body}</body></html>`;
 }
 
-// ─── SLIDE 1: HOOK ────────────────────────────────────────────────────────────
-export function slide1(data, category) {
-  const text = data.slide1_hook || '';
-  const fs = text.length > 40 ? '74px' : text.length > 30 ? '88px' : text.length > 20 ? '102px' : '118px';
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 1 — THE HOOK
+// Full-bleed centered. MASSIVE text. Forces the scroll-stop.
+// Reference feel: Image 7 (editorial grid + huge black text) /
+//                 Image 4 (bold color BG, huge white text)
+// ═══════════════════════════════════════════════════════════════════════════════
+export function slide1(data) {
+  const hook = (data.slide1_hook || '').toUpperCase();
+  const len  = hook.length;
+  const fs   = len > 50 ? '88px' : len > 38 ? '102px' : len > 26 ? '118px' : '136px';
+  const lh   = '0.96';
 
   const css = `
+    .wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 70px 72px; text-align: center;
+    }
+    .agency {
+      font-family: ${S.monoFont}; font-size: 13px; letter-spacing: 0.22em;
+      color: ${S.label}; text-transform: uppercase;
+      margin-bottom: 40px;
+    }
     .hook {
-      font-family:'Anton', sans-serif; font-size:${fs};
-      line-height:1.0; color:${scheme.headline};
-      text-transform:uppercase; letter-spacing:-0.01em;
-      margin-bottom:34px; position:relative; z-index:2;
+      font-family: ${S.headlineFont}; font-size: ${fs}; line-height: ${lh};
+      color: ${S.headline}; text-transform: uppercase;
+      letter-spacing: -0.01em; flex: 1;
+      display: flex; align-items: center; justify-content: center;
     }
-    .hook .accent { color:${scheme.accent}; }
-    .swipe-row {
-      display:flex; align-items:center; gap:14px;
-      position:relative; z-index:2;
+    .hook .pop { color: ${S.accent}; }
+    .swipe-pill {
+      margin-top: 44px;
+      display: inline-flex; align-items: center; gap: 10px;
+      background: ${S.accentBg}; color: ${S.accentText};
+      padding: 12px 24px; border-radius: 100px;
+      font-family: ${S.monoFont}; font-size: 14px;
+      letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500;
     }
-    .swipe-line {
-      width:40px; height:1px; background:${scheme.accent};
+    .handle {
+      position: absolute; bottom: 38px; left: 0; right: 0;
+      text-align: center;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.08em;
     }
-    .swipe-text {
-      font-family:'DM Mono', monospace; font-size:15px;
-      color:${scheme.accentDim}; letter-spacing:0.2em; text-transform:uppercase;
-    }
-    .corner-br {
-      position:absolute; bottom:96px; right:0;
-      width:180px; height:180px;
-      border-top:1px solid ${scheme.accentDim};
-      border-left:1px solid ${scheme.accentDim};
-    }
-    .curiosity-tag {
-      display:inline-block; margin-bottom:20px;
-      padding:6px 14px; border:1px solid ${scheme.accentDim};
-      border-radius:3px;
-      font-family:'DM Mono', monospace; font-size:11px;
-      color:${scheme.label}; letter-spacing:0.18em; text-transform:uppercase;
+    .counter {
+      position: absolute; top: 44px; right: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.06em;
     }
   `;
 
-  return shell(1, 5, category, css, `
-    <div class="corner-br"></div>
-    <div class="content">
-      <div class="curiosity-tag">SWIPE TO SEE WHY →</div>
-      <div class="hook">${text}</div>
-      <div class="gold-bar"></div>
-      <div class="swipe-row">
-        <div class="swipe-line"></div>
-        <span class="swipe-text">AI AUTOMATION FOR LOCAL BUSINESS</span>
-      </div>
+  return shell(1, 5, css, `
+    <div class="wrap">
+      <div class="agency">KLARVO.AI  ·  AI AUTOMATION</div>
+      <div class="hook">${hook}</div>
+      <div class="swipe-pill">SWIPE TO SEE WHY →</div>
     </div>
+    <div class="counter">01 / 05</div>
+    <div class="handle">@klarvo.ai</div>
   `);
 }
 
-// ─── SLIDE 2: OPEN LOOP (don't answer yet) ────────────────────────────────────
-export function slide2(data, category) {
-  const hl = data.slide2_headline || '';
-  const fs = hl.length > 32 ? '58px' : hl.length > 24 ? '70px' : '82px';
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 2 — OPEN THE LOOP
+// Clear label + massive headline + tight body copy. Opens the question.
+// ═══════════════════════════════════════════════════════════════════════════════
+export function slide2(data) {
+  const hl  = (data.slide2_headline || '').toUpperCase();
+  const len = hl.length;
+  const fs  = len > 36 ? '78px' : len > 28 ? '92px' : len > 20 ? '108px' : '124px';
 
   const css = `
-    .left-bar {
-      position:absolute; left:0; top:130px; bottom:110px; width:3px;
-      background:linear-gradient(180deg, transparent, ${scheme.accent} 30%, ${scheme.edgeB} 70%, transparent);
+    .wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 80px 84px;
+    }
+    .label-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 6px;
+      background: ${S.labelBg}; border: 1px solid ${S.border};
+      font-family: ${S.monoFont}; font-size: 12px; letter-spacing: 0.2em;
+      color: ${S.label}; text-transform: uppercase;
+      margin-bottom: 32px; align-self: flex-start;
     }
     .headline {
-      font-family:'Anton', sans-serif; font-size:${fs};
-      line-height:1.04; color:${scheme.headline};
-      text-transform:uppercase; margin-bottom:22px; max-width:820px;
+      font-family: ${S.headlineFont}; font-size: ${fs};
+      line-height: 0.96; color: ${S.headline};
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin-bottom: 36px;
     }
-    .body-text {
-      font-size:23px; line-height:1.7;
-      color:${scheme.body}; max-width:700px;
+    .divider {
+      width: 64px; height: 3px; background: ${S.accent};
+      margin-bottom: 32px;
     }
-    .loop-tag {
-      margin-top:28px; display:inline-flex; align-items:center; gap:10px;
-      font-family:'DM Mono', monospace; font-size:13px;
-      color:${scheme.label}; letter-spacing:0.16em; text-transform:uppercase;
+    .body {
+      font-size: 24px; line-height: 1.62; color: ${S.body};
+      font-weight: 400; max-width: 860px;
     }
-    .loop-arrow { font-size:18px; }
+    .keep-going {
+      margin-top: 40px; display: inline-flex; align-items: center; gap: 12px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: ${S.accent};
+    }
+    .counter {
+      position: absolute; bottom: 38px; right: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.06em;
+    }
+    .handle {
+      position: absolute; bottom: 38px; left: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.08em;
+    }
   `;
 
-  return shell(2, 5, category, css, `
-    <div class="bg-num">01</div>
-    <div class="left-bar"></div>
-    <div class="content" style="padding-left:16px;">
-      <div class="sec-label">${data.slide2_label || 'THE PROBLEM'}</div>
+  return shell(2, 5, css, `
+    <div class="wrap">
+      <div class="label-pill">${data.slide2_label || 'THE PROBLEM'}</div>
       <div class="headline">${hl}</div>
-      <div class="gold-bar"></div>
-      <div class="body-text">${data.slide2_body}</div>
-      <div class="loop-tag">KEEP SWIPING <span class="loop-arrow">→</span></div>
+      <div class="divider"></div>
+      <div class="body">${data.slide2_body}</div>
+      <div class="keep-going">KEEP SWIPING →</div>
     </div>
+    <div class="counter">02 / 05</div>
+    <div class="handle">@klarvo.ai</div>
   `);
 }
 
-// ─── SLIDE 3: PARTIAL REVEAL ──────────────────────────────────────────────────
-export function slide3(data, category) {
-  const hl = data.slide3_headline || '';
-  const fs = hl.length > 32 ? '58px' : hl.length > 24 ? '70px' : '82px';
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 3 — DEEPEN THE TENSION
+// Accent-colored headline = visual shift = feels like revelation
+// ═══════════════════════════════════════════════════════════════════════════════
+export function slide3(data) {
+  const hl  = (data.slide3_headline || '').toUpperCase();
+  const len = hl.length;
+  const fs  = len > 36 ? '78px' : len > 28 ? '92px' : len > 20 ? '108px' : '124px';
 
   const css = `
+    .wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 80px 84px;
+    }
+    .label-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 6px;
+      background: ${S.accentBg}; color: ${S.accentText};
+      font-family: ${S.monoFont}; font-size: 12px; letter-spacing: 0.2em;
+      text-transform: uppercase; margin-bottom: 32px; align-self: flex-start;
+    }
     .headline {
-      font-family:'Anton', sans-serif; font-size:${fs};
-      line-height:1.04; color:${scheme.accent};
-      text-transform:uppercase; margin-bottom:22px; max-width:820px;
+      font-family: ${S.headlineFont}; font-size: ${fs};
+      line-height: 0.96; color: ${S.headlineAlt};
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin-bottom: 36px;
     }
-    .body-text {
-      font-size:23px; line-height:1.7;
-      color:${scheme.body}; max-width:700px;
+    .divider {
+      width: 64px; height: 3px; background: ${S.border};
+      margin-bottom: 32px;
     }
-    .top-corner {
-      position:absolute; top:118px; right:60px;
-      width:70px; height:70px;
-      border-bottom:1px solid ${scheme.accentDim};
-      border-left:1px solid ${scheme.accentDim};
+    .body {
+      font-size: 24px; line-height: 1.62; color: ${S.body};
+      font-weight: 400; max-width: 860px;
     }
-    .loop-tag {
-      margin-top:28px; display:inline-flex; align-items:center; gap:10px;
-      font-family:'DM Mono', monospace; font-size:13px;
-      color:${scheme.label}; letter-spacing:0.16em; text-transform:uppercase;
+    .tease {
+      margin-top: 40px; padding: 18px 26px;
+      border: 1px solid ${S.border}; border-radius: 8px;
+      font-family: ${S.monoFont}; font-size: 14px; letter-spacing: 0.14em;
+      color: ${S.accent}; text-transform: uppercase; display: inline-block;
+    }
+    .counter {
+      position: absolute; bottom: 38px; right: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.06em;
+    }
+    .handle {
+      position: absolute; bottom: 38px; left: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.08em;
     }
   `;
 
-  return shell(3, 5, category, css, `
-    <div class="bg-num">02</div>
-    <div class="top-corner"></div>
-    <div class="content">
-      <div class="sec-label">${data.slide3_label || 'THE TRUTH'}</div>
+  return shell(3, 5, css, `
+    <div class="wrap">
+      <div class="label-pill">${data.slide3_label || 'THE TRUTH'}</div>
       <div class="headline">${hl}</div>
-      <div class="gold-bar"></div>
-      <div class="body-text">${data.slide3_body}</div>
-      <div class="loop-tag">THE NUMBER IS WILD → KEEP GOING</div>
+      <div class="divider"></div>
+      <div class="body">${data.slide3_body}</div>
+      <div class="tease">THE NUMBER IS INSANE → NEXT SLIDE</div>
     </div>
+    <div class="counter">03 / 05</div>
+    <div class="handle">@klarvo.ai</div>
   `);
 }
 
-// ─── SLIDE 4: THE PROOF / STAT ────────────────────────────────────────────────
-export function slide4(data, category) {
-  const stat = data.slide4_stat || '';
-  const statFS = stat.length > 10 ? '100px' : stat.length > 6 ? '130px' : '158px';
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 4 — THE PROOF (the jaw-drop)
+// GIGANTIC stat centered. Number does all the talking.
+// Reference: Image 7 big bold numbers / Image 5 large centered text
+// ═══════════════════════════════════════════════════════════════════════════════
+export function slide4(data) {
+  const stat = (data.slide4_stat || '').toUpperCase();
+  const len  = stat.length;
+  const fs   = len > 10 ? '120px' : len > 6 ? '152px' : '186px';
 
   const css = `
+    .wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 70px 84px; text-align: center;
+    }
+    .label-pill {
+      padding: 8px 20px; border-radius: 6px;
+      background: ${S.labelBg}; border: 1px solid ${S.border};
+      font-family: ${S.monoFont}; font-size: 12px; letter-spacing: 0.2em;
+      color: ${S.label}; text-transform: uppercase;
+      margin-bottom: 36px;
+    }
     .stat {
-      font-family:'Anton', sans-serif; font-size:${statFS};
-      line-height:1.0; color:${scheme.accent};
-      letter-spacing:-0.03em; margin-bottom:4px;
+      font-family: ${S.headlineFont}; font-size: ${fs};
+      line-height: 0.9; color: ${S.accent};
+      letter-spacing: -0.03em; margin-bottom: 28px;
     }
-    .stat-context {
-      font-size:30px; line-height:1.4;
-      color:${scheme.headline}; font-weight:700;
-      max-width:640px; margin-bottom:16px;
+    .rule {
+      width: 100%; height: 1px; background: ${S.border};
+      margin-bottom: 28px;
     }
-    .stat-sub {
-      font-size:20px; line-height:1.5;
-      color:${scheme.body}; max-width:640px;
+    .context {
+      font-family: ${S.headlineFont}; font-size: 42px; line-height: 1.1;
+      color: ${S.headline}; text-transform: uppercase;
+      max-width: 780px; margin-bottom: 16px;
     }
-    .loop-tag {
-      margin-top:26px; display:inline-flex; align-items:center; gap:10px;
-      font-family:'DM Mono', monospace; font-size:13px;
-      color:${scheme.label}; letter-spacing:0.16em; text-transform:uppercase;
+    .sub {
+      font-size: 22px; line-height: 1.5; color: ${S.bodyLight};
+      max-width: 700px;
+    }
+    .counter {
+      position: absolute; bottom: 38px; right: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.06em;
+    }
+    .handle {
+      position: absolute; bottom: 38px; left: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.08em;
     }
   `;
 
-  return shell(4, 5, category, css, `
-    <div class="bg-num">03</div>
-    <div class="content">
-      <div class="sec-label">${data.slide4_label || 'THE NUMBERS'}</div>
+  return shell(4, 5, css, `
+    <div class="wrap">
+      <div class="label-pill">${data.slide4_label || 'THE NUMBERS'}</div>
       <div class="stat">${stat}</div>
-      <div class="gold-rule"></div>
-      <div class="stat-context">${data.slide4_context}</div>
-      <div class="stat-sub">${data.slide4_sub || ''}</div>
-      <div class="loop-tag">ONE MORE SLIDE → THIS CHANGES EVERYTHING</div>
+      <div class="rule"></div>
+      <div class="context">${data.slide4_context}</div>
+      <div class="sub">${data.slide4_sub || ''}</div>
     </div>
+    <div class="counter">04 / 05</div>
+    <div class="handle">@klarvo.ai</div>
   `);
 }
 
-// ─── SLIDE 5: THE PAYOFF + CTA ────────────────────────────────────────────────
-export function slide5(data, category) {
-  const hl = data.slide5_headline || '';
-  const fs = hl.length > 32 ? '58px' : hl.length > 24 ? '68px' : '78px';
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 5 — THE CTA (the payoff)
+// Bold CTA word front and center. Comment pill. Clean close.
+// Reference: Image 2 "SAVE IT NOW" button / Image 7 red CTA box
+// ═══════════════════════════════════════════════════════════════════════════════
+export function slide5(data) {
+  const hl  = (data.slide5_headline || '').toUpperCase();
+  const len = hl.length;
+  const fs  = len > 36 ? '76px' : len > 28 ? '90px' : len > 20 ? '104px' : '118px';
 
   const css = `
-    .cta-headline {
-      font-family:'Anton', sans-serif; font-size:${fs};
-      line-height:1.04; color:${scheme.headline};
-      text-transform:uppercase; margin-bottom:32px;
+    .wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 70px 84px; text-align: center;
     }
-    .pill {
-      display:inline-flex; align-items:center; gap:16px;
-      background:${scheme.accentDim};
-      border:1px solid ${scheme.accent};
-      border-radius:6px; padding:16px 26px; margin-bottom:24px;
+    .above {
+      font-family: ${S.monoFont}; font-size: 13px; letter-spacing: 0.2em;
+      color: ${S.label}; text-transform: uppercase; margin-bottom: 28px;
     }
-    .pill-icon { font-size:24px; }
-    .pill-label {
-      font-size:18px; color:${scheme.body}; line-height:1.2;
+    .headline {
+      font-family: ${S.headlineFont}; font-size: ${fs};
+      line-height: 0.96; color: ${S.headline};
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin-bottom: 48px;
     }
-    .pill-word {
-      font-family:'Anton', sans-serif; font-size:38px;
-      color:${scheme.accent}; letter-spacing:0.06em;
+    .cta-box {
+      display: flex; align-items: center; gap: 20px;
+      background: ${S.accentBg}; color: ${S.accentText};
+      padding: 22px 40px; border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .cta-icon { font-size: 28px; }
+    .cta-inner { text-align: left; }
+    .cta-line1 {
+      font-family: ${S.bodyFont}; font-size: 18px;
+      font-weight: 400; opacity: 0.85; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .cta-word {
+      font-family: ${S.headlineFont}; font-size: 44px;
+      letter-spacing: 0.06em; line-height: 1;
     }
     .cta-desc {
-      font-size:20px; line-height:1.55;
-      color:${scheme.body}; max-width:700px;
+      font-size: 19px; line-height: 1.5;
+      color: ${S.bodyLight}; max-width: 680px;
     }
-    .corner-br {
-      position:absolute; bottom:96px; right:0;
-      width:140px; height:140px;
-      border-top:1px solid ${scheme.accentDim};
-      border-left:1px solid ${scheme.accentDim};
+    .counter {
+      position: absolute; bottom: 38px; right: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.06em;
+    }
+    .handle {
+      position: absolute; bottom: 38px; left: 60px;
+      font-family: ${S.monoFont}; font-size: 13px;
+      color: ${S.bodyLight}; letter-spacing: 0.08em;
     }
   `;
 
-  return shell(5, 5, category, css, `
-    <div class="corner-br"></div>
-    <div class="content">
-      <div class="sec-label">HERE'S HOW TO GET THIS</div>
-      <div class="cta-headline">${hl}</div>
-      <div class="pill">
-        <span class="pill-icon">💬</span>
-        <div>
-          <div class="pill-label">Comment below</div>
-          <div class="pill-word">"${data.slide5_cta_word}"</div>
+  return shell(5, 5, css, `
+    <div class="wrap">
+      <div class="above">HERE'S HOW TO GET THIS ↓</div>
+      <div class="headline">${hl}</div>
+      <div class="cta-box">
+        <div class="cta-icon">💬</div>
+        <div class="cta-inner">
+          <div class="cta-line1">Comment below</div>
+          <div class="cta-word">"${data.slide5_cta_word}"</div>
         </div>
       </div>
       <div class="cta-desc">${data.slide5_cta_desc}</div>
     </div>
+    <div class="counter">05 / 05</div>
+    <div class="handle">@klarvo.ai</div>
   `);
 }

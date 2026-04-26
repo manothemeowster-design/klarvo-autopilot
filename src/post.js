@@ -7,7 +7,7 @@ const IG_ACCESS_TOKEN  = process.env.IG_ACCESS_TOKEN;
 const IG_ACCOUNT_ID    = process.env.IG_ACCOUNT_ID;
 const FB_ACCESS_TOKEN  = process.env.FB_ACCESS_TOKEN;
 const FB_PAGE_ID       = process.env.FB_PAGE_ID;
-const IMGBB_API_KEY    = process.env.IMGBB_API_KEY;
+
 const CHROMIUM_PATH    = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
 
 // ─── CONTENT CALENDAR ────────────────────────────────────────────────────────
@@ -246,17 +246,15 @@ async function renderAndUploadSlides(content) {
   return urls;
 }
 
-// ─── UPLOAD TO IMGBB ──────────────────────────────────────────────────────────
+// ─── UPLOAD IMAGE (0x0.st) ───────────────────────────────────────────────────
 async function uploadToImgbb(buffer, name) {
-  const base64 = buffer.toString('base64');
-  const params = new URLSearchParams();
-  params.append('image', base64);
-  params.append('name',  name || 'klarvo_slide');
-
-  const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: params });
-  const data = await res.json();
-  if (!data.success) throw new Error('imgbb failed: ' + JSON.stringify(data));
-  return data.data.url;
+  const { FormData, Blob } = await import("node-fetch");
+  const form = new FormData();
+  form.append("file", new Blob([buffer], { type: "image/png" }), `${name || "slide"}.png`);
+  const res = await fetch("https://0x0.st", { method: "POST", body: form });
+  const url = (await res.text()).trim();
+  if (!url.startsWith("http")) throw new Error("0x0.st upload failed: " + url);
+  return url;
 }
 
 // ─── POST CAROUSEL TO INSTAGRAM ───────────────────────────────────────────────

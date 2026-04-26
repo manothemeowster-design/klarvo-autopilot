@@ -1,326 +1,368 @@
-// ─── SLIDE HTML TEMPLATE GENERATOR ──────────────────────────────────────────
-// Generates pixel-perfect 1080x1080 HTML for each carousel slide
-// Design: Dark red/gold, Anton headlines, DM Sans body, grid overlay
+import fetch from 'node-fetch';
+import puppeteer from 'puppeteer-core';
+import { slide1, slide2, slide3, slide4, slide5 } from './slides.js';
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;600;700;900&family=DM+Mono:wght@400;500&display=swap');`;
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const IG_ACCESS_TOKEN  = process.env.IG_ACCESS_TOKEN;
+const IG_ACCOUNT_ID    = process.env.IG_ACCOUNT_ID;
+const FB_ACCESS_TOKEN  = process.env.FB_ACCESS_TOKEN;
+const FB_PAGE_ID       = process.env.FB_PAGE_ID;
 
-const BASE_STYLES = `
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 1080px; height: 1080px; overflow: hidden; }
-  body {
-    background: linear-gradient(145deg, #130606 0%, #240c0c 45%, #1a0808 100%);
-    color: #F2E4C4;
-    font-family: 'DM Sans', sans-serif;
-    position: relative;
-  }
-  .grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(201,168,76,0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201,168,76,0.045) 1px, transparent 1px);
-    background-size: 54px 54px;
-  }
-  .edge-top {
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent 0%, #C9A84C 40%, #8B1A1A 70%, transparent 100%);
-  }
-  .edge-bottom {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent 0%, #8B1A1A 30%, #C9A84C 60%, transparent 100%);
-  }
-  .top-bar {
-    position: absolute; top: 42px; left: 60px; right: 60px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .agency {
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    color: #C9A84C; letter-spacing: 0.2em; text-transform: uppercase;
-  }
-  .cat-label {
-    font-family: 'DM Mono', monospace; font-size: 12px;
-    color: rgba(201,168,76,0.5); letter-spacing: 0.14em; text-transform: uppercase;
-  }
-  .bottom-bar {
-    position: absolute; bottom: 38px; left: 60px; right: 60px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .handle {
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    color: rgba(242,228,196,0.3); letter-spacing: 0.08em;
-  }
-  .counter {
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    color: rgba(201,168,76,0.45); letter-spacing: 0.08em;
-  }
-  .content {
-    position: absolute; top: 118px; bottom: 96px;
-    left: 60px; right: 60px;
-    display: flex; flex-direction: column; justify-content: center;
-  }
-  .sec-label {
-    font-family: 'DM Mono', monospace; font-size: 12px;
-    color: #C9A84C; letter-spacing: 0.22em;
-    text-transform: uppercase; margin-bottom: 22px;
-  }
-  .gold-bar { width: 56px; height: 2px; background: #C9A84C; margin: 26px 0; }
-  .gold-rule {
-    width: 100%; height: 1px; margin: 22px 0;
-    background: linear-gradient(90deg, #C9A84C 0%, rgba(201,168,76,0.2) 70%, transparent 100%);
-  }
+const CHROMIUM_PATH    = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
+
+// ─── CONTENT CALENDAR ────────────────────────────────────────────────────────
+const now      = new Date();
+const day      = now.getUTCDay();
+const hour     = now.getUTCHours();
+const postSlot = hour < 7 ? 0 : hour < 11 ? 0 : hour < 15 ? 1 : hour < 19 ? 2 : 3;
+
+const CALENDAR = {
+  0: [
+    { pillar:'FOMO',      angle:'competitors planned their week with AI while you rested',            industry:'general local business', hookStyle:'QUESTION'      },
+    { pillar:'EDUCATION', angle:'how AI handles scheduling and bookings automatically on weekends',    industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'PAIN',      angle:'Sunday leads that hit voicemail got taken by a competitor by Monday', industry:'HVAC',                   hookStyle:'STORY'         },
+    { pillar:'FOMO',      angle:'the business owner who never misses a Sunday evening inquiry',        industry:'plumbing',               hookStyle:'SHOCKING_STAT' },
+  ],
+  1: [
+    { pillar:'PAIN',      angle:'you started Monday with 3 missed calls sitting in voicemail',        industry:'roofing',                hookStyle:'SHOCKING_STAT' },
+    { pillar:'EDUCATION', angle:'what an AI receptionist does from 8am to 8pm in one day',            industry:'HVAC',                   hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'PROOF',     angle:'businesses that added AI in Jan closed 40% more jobs by March',      industry:'electrical',             hookStyle:'BEFORE_AFTER'  },
+    { pillar:'FOMO',      angle:"Monday 9am: competitor's AI already booked 2 installs. Did yours?",  industry:'general local business', hookStyle:'CONTRARIAN'    },
+  ],
+  2: [
+    { pillar:'EDUCATION', angle:'the 3am call that books a $4000 AC job — here\'s who answers it',   industry:'HVAC',                   hookStyle:'STORY'         },
+    { pillar:'PAIN',      angle:'your follow-up delay is costing you 40% of leads you paid for',      industry:'general local business', hookStyle:'SHOCKING_STAT' },
+    { pillar:'PROOF',     angle:'AI receptionist vs hiring a front desk: real cost breakdown',         industry:'dental',                 hookStyle:'BEFORE_AFTER'  },
+    { pillar:'EDUCATION', angle:'how AI websites rank on Google without you writing a single word',    industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
+  ],
+  3: [
+    { pillar:'PROOF',     angle:'$78,000 in recovered jobs from missed calls in 90 days with AI',     industry:'plumbing',               hookStyle:'SHOCKING_STAT' },
+    { pillar:'FOMO',      angle:'the local HVAC company outranking you on Google uses AI SEO now',    industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
+    { pillar:'PAIN',      angle:'you spent $1,200 on ads. The lead called. Nobody answered 4 hours.', industry:'roofing',                hookStyle:'STORY'         },
+    { pillar:'EDUCATION', angle:'the AI agent that texts back every missed call in under 60 seconds', industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
+  ],
+  4: [
+    { pillar:'FOMO',      angle:'3 businesses in your city quietly switched to AI agents this month', industry:'general local business', hookStyle:'SHOCKING_STAT' },
+    { pillar:'PAIN',      angle:"you lost 11 leads to voicemail this week. Here's the math.",         industry:'HVAC',                   hookStyle:'PROOF'         },
+    { pillar:'PROOF',     angle:'AI booked 14 service calls while owner was on a job site',           industry:'electrical',             hookStyle:'STORY'         },
+    { pillar:'FOMO',      angle:"the businesses winning in 2025 all share one thing you don't have",  industry:'home services',          hookStyle:'CONTRARIAN'    },
+  ],
+  5: [
+    { pillar:'PROOF',     angle:"from 4 missed calls a day to zero — this plumber's story",           industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
+    { pillar:'PAIN',      angle:"you grind all week. Your AI works every second you don't.",          industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
+    { pillar:'EDUCATION', angle:'what changes in the first 48 hours after setting up AI automation',  industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'FOMO',      angle:'your Friday night. Their AI: 3 jobs booked, 2 follow-ups sent.',     industry:'roofing',                hookStyle:'SHOCKING_STAT' },
+  ],
+  6: [
+    { pillar:'PAIN',      angle:'on a job site Saturday. Phone dies. 2 leads gone forever.',          industry:'HVAC',                   hookStyle:'STORY'         },
+    { pillar:'PROOF',     angle:'how this plumber made an extra $23k his first month with AI',        industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
+    { pillar:'FOMO',      angle:"every contractor you know is looking into AI. Most won't act.",      industry:'general local business', hookStyle:'CONTRARIAN'    },
+    { pillar:'EDUCATION', angle:'what actually happens when a customer calls after hours',            industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
+  ],
+};
+
+const slot     = CALENDAR[day]?.[postSlot] || CALENDAR[1][0];
+const { pillar, angle, industry, hookStyle } = slot;
+
+// ─── HOOK GUIDES ─────────────────────────────────────────────────────────────
+const HOOK_GUIDES = {
+  SHOCKING_STAT: `One specific shocking number, dollar amount, or percentage. No preamble.
+    Pattern: "[Specific $amount or %]. [4-word consequence]."
+    Examples: "78% of missed calls never call back." | "$4,200. Gone. One missed call."`,
+  QUESTION: `Question that makes them whisper "wait... is that me?" Under 10 words.
+    Examples: "What if your phone answered itself at 2am?" | "How many calls did you miss today?"`,
+  STORY: `Drop them into a scene mid-action. Tension immediately.
+    Examples: "He was on a roof. Four calls. All missed." | "She almost lost her business over a voicemail."`,
+  HOW_IT_WORKS: `Curiosity gap — they don't know this exists and now they need to.
+    Examples: "Here's exactly how AI answers calls when you physically can't." | "Nobody tells plumbers this about AI."`,
+  BEFORE_AFTER: `Brutal contrast in one line. Short. Sharp.
+    Examples: "Before: 6 missed calls a week. After: zero." | "Before: $0 at 2am. After: 3 jobs booked."`,
+  CONTRARIAN: `Say the thing everyone thinks is wrong but isn't.
+    Examples: "Stop hiring another receptionist." | "The hustle advice is why you're losing leads."`,
+  PROOF: `Lead with a specific result as the hook.
+    Examples: "14 jobs booked. Zero calls answered by a human. One week."`,
+};
+
+// ─── CTA ROTATION ─────────────────────────────────────────────────────────────
+const CTAS = [
+  { word:'AUDIT',  desc:"I'll personally show you exactly how many leads you're losing each week — for free." },
+  { word:'DEMO',   desc:"I'll send you a 2-minute live demo of this working for a business just like yours." },
+  { word:'AI',     desc:"I'll build you a free custom AI automation map for your specific business." },
+  { word:'SYSTEM', desc:"I'll send you the exact setup this business used to stop losing jobs to voicemail." },
+  { word:'COST',   desc:"I'll DM you the exact numbers: what this costs vs what you're bleeding without it." },
+];
+const cta = CTAS[(day + postSlot) % CTAS.length];
+
+// ─── HASHTAG ROTATION ─────────────────────────────────────────────────────────
+const HASHTAGS = [
+  '#AIAutomation #LocalBusiness #KlarvoAI #BusinessGrowth #AIAgents #SmallBusiness #AutomationTools #BusinessOwner #LeadGeneration #DigitalMarketing',
+  '#AIReceptionist #LocalBusinessOwner #BusinessAutomation #KlarvoAI #MissedCalls #SmallBusinessOwner #AIForBusiness #ScaleYourBusiness #HVACBusiness #ContractorLife',
+  '#ArtificialIntelligence #LocalServiceBusiness #KlarvoAI #AutomateEverything #BusinessIntelligence #EntrepreneurMindset #GrowYourBusiness #AITools #MarketingAutomation #PlumbingBusiness',
+  '#SmallBusinessMarketing #AIRevolution #KlarvoAI #LocalMarketing #BusinessStrategy #NeverMissACall #AIWebsite #SEO #AutomatedFollowUp #RoofingContractor',
+];
+const hashtags = HASHTAGS[(day + postSlot) % HASHTAGS.length];
+
+// ─── CATEGORY LABEL (top right of slides) ────────────────────────────────────
+const CATEGORY_MAP = {
+  PAIN: 'LEAD LOSS  •  WAKE UP CALL',
+  PROOF: 'REAL RESULTS  •  CASE STUDY',
+  FOMO: 'THE RACE  •  ARE YOU BEHIND?',
+  EDUCATION: 'HOW IT WORKS  •  AI EXPLAINED',
+};
+const category = CATEGORY_MAP[pillar];
+
+// ─── DEEPSEEK PROMPT ─────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are the world's best viral carousel copywriter.
+You create scroll-stopping carousel posts for Klarvo.ai — an AI automation agency for local businesses.
+
+CURIOSITY-GAP RULES (most important):
+- Every slide must make them NEED to see the next slide
+- Never answer the question fully until slide 4 or 5
+- Create open loops: raise a question on slide 2, tease the answer on slide 3, reveal on slide 4
+- Slide 1 hook = stops the scroll. Slide 2 = opens the loop. Slide 3 = deepens it. Slide 4 = the payoff. Slide 5 = CTA
+- Use "But here's the thing..." / "And it gets worse..." / "Nobody talks about this..." to pull them forward
+
+WRITING RULES:
+- Short sentences ONLY. Max 10 words. Seriously.
+- Specific beats vague always: "$4,200" not "a lot"
+- Sound human. Like a friend who runs a business.
+- Contractions only: "you're" "it's" "they're"
+- NEVER use: utilize / leverage / game-changer / cutting-edge / innovative / empower
+- Every single word must earn its place. Cut ruthlessly.
+- The hook should feel so personal that the reader thinks you wrote it FOR them
+
+Return ONLY valid JSON. No markdown. No backticks. No extra text:
+{
+  "slide1_hook": "STOP-SCROLL hook. MAX 10 words. ALL CAPS works great. So specific it feels personal.",
+  "slide2_label": "short label like THE PROBLEM or THE REAL COST or WAKE UP",
+  "slide2_headline": "4-7 words. Opens a loop. Raises a question. Doesn't answer it yet.",
+  "slide2_body": "2-3 sentences. Agitate the problem. End with a cliffhanger that makes them swipe.",
+  "slide3_label": "short label like THE TRUTH or WHAT NOBODY SAYS or HERE'S WHY",
+  "slide3_headline": "4-7 words. Partial reveal. Teases the answer. Still building tension.",
+  "slide3_body": "2-3 sentences. Deepen the insight. Say something surprising. End by teasing the stat coming next.",
+  "slide4_label": "THE NUMBERS or THE PROOF or THE REALITY",
+  "slide4_stat": "One big jaw-dropping number. $amount or X% or X JOBS. Max 3 tokens.",
+  "slide4_context": "What this stat means. 8-12 words. Make it hit hard.",
+  "slide4_sub": "One supporting fact that makes slide 4 stat even more shocking. 10-15 words.",
+  "slide5_headline": "4-6 words. The payoff promise. What they GET by commenting.",
+  "slide5_cta_word": "${cta.word}",
+  "slide5_cta_desc": "${cta.desc}",
+  "caption": "Full IG caption 170-210 words. Emojis. Hook them. Story. Ends with: Comment ${cta.word} below.",
+  "hashtags": "${hashtags}"
+}`;
+
+const USER_PROMPT = `
+BRIEF:
+- Pillar: ${pillar}
+- Angle: ${angle}
+- Target industry: ${industry}
+- Hook style: ${hookStyle}
+- Hook guide: ${HOOK_GUIDES[hookStyle]}
+- CTA word: ${cta.word}
+
+PILLAR:
+${pillar === 'PAIN'      ? 'Make them feel the gut-punch of losing a real lead. Specific micro-scenario. Reader must think "that is literally me right now."' : ''}
+${pillar === 'PROOF'     ? 'Lead with a real-feeling specific result. Numbers must feel real. Show the before and after clearly. Make it feel like a case study.' : ''}
+${pillar === 'FOMO'      ? "Their competitor is winning RIGHT NOW with AI. Genuine urgency. Make them feel like they're watching a race they're already losing." : ''}
+${pillar === 'EDUCATION' ? "Explain ONE specific AI thing simply — like explaining to a friend at lunch. No jargon. What it does, how it works, what changes." : ''}
+
+Slide 1 hook: use ${hookStyle} style.
+Make every word hit hard. Cut anything that doesn't.
 `;
 
-function shell(slideNum, total, category, innerCSS, innerHTML) {
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>
-${FONTS}
-${BASE_STYLES}
-${innerCSS}
-</style></head><body>
-<div class="grid"></div>
-<div class="edge-top"></div>
-<div class="edge-bottom"></div>
-<div class="top-bar">
-  <span class="agency">KLARVO.AI</span>
-  <span class="cat-label">${category}</span>
-</div>
-<div class="bottom-bar">
-  <span class="handle">@klarvo.ai</span>
-  <span class="counter">0${slideNum} / 0${total}</span>
-</div>
-${innerHTML}
-</body></html>`;
+// ─── GENERATE CONTENT ─────────────────────────────────────────────────────────
+async function generateContent() {
+  console.log(`\n📅 ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day]} | Slot ${postSlot} | ${pillar} | ${hookStyle}`);
+  console.log(`🎯 ${angle} | 🏢 ${industry}\n`);
+
+  const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      max_tokens: 2200,
+      temperature: 1.1,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user',   content: USER_PROMPT   },
+      ]
+    })
+  });
+
+  const data = await res.json();
+  if (!data.choices) throw new Error('DeepSeek error: ' + JSON.stringify(data));
+
+  const raw   = data.choices[0].message.content.trim();
+  const clean = raw.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(clean);
+
+  // ensure cta word is correct
+  parsed.slide5_cta_word = cta.word;
+  parsed.slide5_cta_desc = cta.desc;
+
+  // build full caption
+  parsed.full_caption = [
+    parsed.slide1_hook, '',
+    parsed.caption, '',
+    `💬 Comment "${cta.word}" below ↓`, '',
+    parsed.hashtags,
+  ].join('\n');
+
+  console.log(`✍️  Hook: ${parsed.slide1_hook}`);
+  return parsed;
 }
 
-// ── SLIDE 1: HOOK ─────────────────────────────────────────────────────────────
-export function slide1(data, category) {
-  const len = (data.slide1_hook || '').length;
-  const fs = len > 35 ? '82px' : len > 25 ? '96px' : len > 18 ? '110px' : '124px';
+// ─── RENDER SLIDES ────────────────────────────────────────────────────────────
+async function renderAndUploadSlides(content) {
+  console.log('\n🖥️  Launching Puppeteer...');
+  const browser = await puppeteer.launch({
+    executablePath: CHROMIUM_PATH,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    headless: true,
+  });
 
-  const css = `
-    .hook {
-      font-family: 'Anton', sans-serif;
-      font-size: ${fs}; line-height: 1.0;
-      color: #F2E4C4; text-transform: uppercase;
-      letter-spacing: -0.01em; margin-bottom: 38px;
-    }
-    .hook em { color: #C9A84C; font-style: normal; }
-    .swipe {
-      display: flex; align-items: center; gap: 12px;
-      font-family: 'DM Mono', monospace; font-size: 16px;
-      color: rgba(201,168,76,0.65); letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-    .swipe-arrow { font-size: 20px; }
-    .corner-deco {
-      position: absolute; bottom: 96px; right: 0;
-      width: 220px; height: 220px;
-      border-top: 1px solid rgba(201,168,76,0.12);
-      border-left: 1px solid rgba(201,168,76,0.12);
-      pointer-events: none;
-    }
-  `;
+  const slideGenerators = [
+    () => slide1(content, category),
+    () => slide2(content, category),
+    () => slide3(content, category),
+    () => slide4(content, category),
+    () => slide5(content, category),
+  ];
 
-  const html = `
-    <div class="corner-deco"></div>
-    <div class="content">
-      <div class="sec-label">AI AUTOMATION FOR LOCAL BUSINESS</div>
-      <div class="hook">${data.slide1_hook}</div>
-      <div class="gold-bar"></div>
-      <div class="swipe">SWIPE TO SEE WHY <span class="swipe-arrow">→</span></div>
-    </div>
-  `;
+  const urls = [];
 
-  return shell(1, 5, category, css, html);
+  try {
+    for (let i = 0; i < slideGenerators.length; i++) {
+      const html = slideGenerators[i]();
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1080, height: 1080, deviceScaleFactor: 1 });
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.evaluateHandle('document.fonts.ready');
+      await new Promise(r => setTimeout(r, 2000)); // font render buffer
+
+      const buffer = await page.screenshot({ type: 'png' });
+      await page.close();
+
+      const url = await uploadToImgbb(buffer, `klarvo_slide_${i + 1}`);
+      urls.push(url);
+      console.log(`✅ Slide ${i + 1}/5 → ${url}`);
+    }
+  } finally {
+    await browser.close();
+  }
+
+  return urls;
 }
 
-// ── SLIDE 2: PROBLEM ──────────────────────────────────────────────────────────
-export function slide2(data, category) {
-  const len = (data.slide2_headline || '').length;
-  const fs = len > 30 ? '60px' : len > 22 ? '72px' : '84px';
+// ─── UPLOAD TO GITHUB (no external service needed) ───────────────────────────
+async function uploadToImgbb(buffer, name) {
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const REPO = process.env.GITHUB_REPOSITORY; // auto-set by Actions
+  const fileName = `slides/${Date.now()}_${name || "slide"}.png`;
+  const base64 = buffer.toString("base64");
 
-  const css = `
-    .bg-num {
-      position: absolute; font-family: 'Anton', sans-serif;
-      font-size: 340px; color: rgba(139,26,26,0.28);
-      right: 30px; top: 50%; transform: translateY(-50%);
-      line-height: 1; user-select: none; pointer-events: none;
-    }
-    .left-accent {
-      position: absolute; left: 0; top: 130px; bottom: 110px;
-      width: 3px;
-      background: linear-gradient(180deg, transparent, #C9A84C 30%, #8B1A1A 70%, transparent);
-    }
-    .headline {
-      font-family: 'Anton', sans-serif; font-size: ${fs};
-      line-height: 1.04; color: #F2E4C4;
-      text-transform: uppercase; letter-spacing: -0.01em;
-      margin-bottom: 24px; max-width: 800px;
-    }
-    .body-text {
-      font-family: 'DM Sans', sans-serif; font-size: 23px;
-      line-height: 1.68; color: rgba(242,228,196,0.72);
-      font-weight: 400; max-width: 680px;
-    }
-  `;
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${fileName}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${GITHUB_TOKEN}`,
+      "Content-Type": "application/json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    },
+    body: JSON.stringify({
+      message: `slide: ${fileName}`,
+      content: base64,
+    })
+  });
 
-  const html = `
-    <div class="bg-num">01</div>
-    <div class="left-accent"></div>
-    <div class="content" style="padding-left: 16px;">
-      <div class="sec-label">${data.slide2_label || 'THE PROBLEM'}</div>
-      <div class="headline">${data.slide2_headline}</div>
-      <div class="gold-bar"></div>
-      <div class="body-text">${data.slide2_body}</div>
-    </div>
-  `;
-
-  return shell(2, 5, category, css, html);
+  const data = await res.json();
+  if (!data.content) throw new Error("GitHub upload failed: " + JSON.stringify(data));
+  // Use raw URL — publicly accessible even from private repos via token
+  const rawUrl = `https://raw.githubusercontent.com/${REPO}/main/${fileName}`;
+  return rawUrl;
 }
 
-// ── SLIDE 3: INSIGHT ──────────────────────────────────────────────────────────
-export function slide3(data, category) {
-  const len = (data.slide3_headline || '').length;
-  const fs = len > 30 ? '60px' : len > 22 ? '72px' : '84px';
+// ─── POST CAROUSEL TO INSTAGRAM ───────────────────────────────────────────────
+async function postCarouselToInstagram(imageUrls, caption) {
+  console.log('\n📸 Creating IG carousel...');
 
-  const css = `
-    .bg-num {
-      position: absolute; font-family: 'Anton', sans-serif;
-      font-size: 340px; color: rgba(139,26,26,0.28);
-      right: 30px; top: 50%; transform: translateY(-50%);
-      line-height: 1; user-select: none; pointer-events: none;
-    }
-    .headline {
-      font-family: 'Anton', sans-serif; font-size: ${fs};
-      line-height: 1.04; color: #C9A84C;
-      text-transform: uppercase; letter-spacing: -0.01em;
-      margin-bottom: 24px; max-width: 800px;
-    }
-    .body-text {
-      font-family: 'DM Sans', sans-serif; font-size: 23px;
-      line-height: 1.68; color: rgba(242,228,196,0.72);
-      font-weight: 400; max-width: 680px;
-    }
-    .top-deco {
-      position: absolute; top: 118px; right: 60px;
-      width: 80px; height: 80px;
-      border-bottom: 1px solid rgba(201,168,76,0.2);
-      border-left: 1px solid rgba(201,168,76,0.2);
-    }
-  `;
+  // Step 1: Create item containers
+  const childIds = [];
+  for (const url of imageUrls) {
+    const r = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_url: url,
+        is_carousel_item: true,
+        access_token: IG_ACCESS_TOKEN,
+      })
+    });
+    const d = await r.json();
+    if (!d.id) throw new Error('Carousel item failed: ' + JSON.stringify(d));
+    childIds.push(d.id);
+    console.log(`  → Item ${childIds.length}: ${d.id}`);
+    await new Promise(r => setTimeout(r, 2000));
+  }
 
-  const html = `
-    <div class="bg-num">02</div>
-    <div class="top-deco"></div>
-    <div class="content">
-      <div class="sec-label">${data.slide3_label || 'THE TRUTH'}</div>
-      <div class="headline">${data.slide3_headline}</div>
-      <div class="gold-bar"></div>
-      <div class="body-text">${data.slide3_body}</div>
-    </div>
-  `;
+  // Step 2: Create carousel container
+  const carRes = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      media_type: 'CAROUSEL',
+      children: childIds,
+      caption: caption,
+      access_token: IG_ACCESS_TOKEN,
+    })
+  });
+  const carousel = await carRes.json();
+  if (!carousel.id) throw new Error('Carousel container failed: ' + JSON.stringify(carousel));
+  console.log('  → Carousel container:', carousel.id);
 
-  return shell(3, 5, category, css, html);
+  // Step 3: Wait then publish
+  console.log('⏳ Processing...');
+  await new Promise(r => setTimeout(r, 8000));
+
+  const pubRes = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media_publish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ creation_id: carousel.id, access_token: IG_ACCESS_TOKEN })
+  });
+  const pub = await pubRes.json();
+  console.log('✅ IG Carousel live:', pub);
+  return pub;
 }
 
-// ── SLIDE 4: THE STAT ─────────────────────────────────────────────────────────
-export function slide4(data, category) {
-  const statLen = (data.slide4_stat || '').length;
-  const statFS = statLen > 8 ? '110px' : statLen > 5 ? '138px' : '160px';
-
-  const css = `
-    .bg-num {
-      position: absolute; font-family: 'Anton', sans-serif;
-      font-size: 340px; color: rgba(139,26,26,0.28);
-      right: 30px; top: 50%; transform: translateY(-50%);
-      line-height: 1; user-select: none; pointer-events: none;
-    }
-    .stat {
-      font-family: 'Anton', sans-serif; font-size: ${statFS};
-      line-height: 1.0; color: #C9A84C;
-      letter-spacing: -0.03em; margin-bottom: 6px;
-    }
-    .stat-context {
-      font-family: 'DM Sans', sans-serif; font-size: 28px;
-      line-height: 1.45; color: #F2E4C4;
-      font-weight: 700; max-width: 620px; margin-bottom: 18px;
-    }
-    .stat-sub {
-      font-family: 'DM Sans', sans-serif; font-size: 20px;
-      line-height: 1.5; color: rgba(242,228,196,0.55);
-      font-weight: 400; max-width: 620px;
-    }
-  `;
-
-  const html = `
-    <div class="bg-num">03</div>
-    <div class="content">
-      <div class="sec-label">${data.slide4_label || 'THE NUMBERS'}</div>
-      <div class="stat">${data.slide4_stat}</div>
-      <div class="gold-rule"></div>
-      <div class="stat-context">${data.slide4_context}</div>
-      <div class="stat-sub">${data.slide4_sub || ''}</div>
-    </div>
-  `;
-
-  return shell(4, 5, category, css, html);
+// ─── POST TO FACEBOOK ─────────────────────────────────────────────────────────
+async function postToFacebook(imageUrls, message) {
+  console.log('\n📘 Posting to Facebook...');
+  // FB gets the hook slide as the image
+  const res = await fetch(`https://graph.facebook.com/v19.0/${FB_PAGE_ID}/photos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: imageUrls[0], message, access_token: FB_ACCESS_TOKEN })
+  });
+  const result = await res.json();
+  console.log('✅ FB live:', result);
+  return result;
 }
 
-// ── SLIDE 5: CTA ──────────────────────────────────────────────────────────────
-export function slide5(data, category) {
-  const len = (data.slide5_headline || '').length;
-  const fs = len > 30 ? '62px' : len > 22 ? '72px' : '82px';
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+async function main() {
+  try {
+    console.log('🚀 Klarvo Autopilot — Phase B (Carousel)\n');
 
-  const css = `
-    .cta-headline {
-      font-family: 'Anton', sans-serif; font-size: ${fs};
-      line-height: 1.04; color: #F2E4C4;
-      text-transform: uppercase; letter-spacing: -0.01em;
-      margin-bottom: 36px;
-    }
-    .comment-pill {
-      display: inline-flex; align-items: center; gap: 18px;
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.35);
-      border-radius: 8px; padding: 18px 30px;
-      margin-bottom: 28px;
-    }
-    .pill-icon { font-size: 26px; }
-    .pill-text {
-      font-family: 'DM Sans', sans-serif; font-size: 20px;
-      color: rgba(242,228,196,0.7); line-height: 1.3;
-    }
-    .pill-word {
-      font-family: 'Anton', sans-serif; font-size: 40px;
-      color: #C9A84C; letter-spacing: 0.04em;
-    }
-    .cta-desc {
-      font-family: 'DM Sans', sans-serif; font-size: 21px;
-      line-height: 1.55; color: rgba(242,228,196,0.55);
-      max-width: 680px;
-    }
-    .right-deco {
-      position: absolute; bottom: 96px; right: 0;
-      width: 160px; height: 160px;
-      border-top: 1px solid rgba(201,168,76,0.15);
-      border-left: 1px solid rgba(201,168,76,0.15);
-    }
-  `;
+    const content   = await generateContent();
+    const imageUrls = await renderAndUploadSlides(content);
 
-  const html = `
-    <div class="right-deco"></div>
-    <div class="content">
-      <div class="sec-label">WHAT'S NEXT</div>
-      <div class="cta-headline">${data.slide5_headline}</div>
-      <div class="comment-pill">
-        <span class="pill-icon">💬</span>
-        <div>
-          <div class="pill-text">Comment</div>
-          <div class="pill-word">"${data.slide5_cta_word}"</div>
-        </div>
-      </div>
-      <div class="cta-desc">${data.slide5_cta_desc}</div>
-    </div>
-  `;
+    await postCarouselToInstagram(imageUrls, content.full_caption);
+    await postToFacebook(imageUrls, content.full_caption);
 
-  return shell(5, 5, category, css, html);
+    console.log(`\n🎉 Done! ${pillar} | ${cta.word} | ${industry}`);
+  } catch (err) {
+    console.error('❌ Error:', err);
+    process.exit(1);
+  }
 }
+
+main();

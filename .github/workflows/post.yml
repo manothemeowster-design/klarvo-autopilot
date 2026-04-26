@@ -1,0 +1,32 @@
+name: Klarvo Autopilot Poster
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 8am PKT
+    - cron: '0 7 * * *'   # 12pm PKT
+    - cron: '0 11 * * *'  # 4pm PKT
+    - cron: '0 15 * * *'  # 8pm PKT
+  workflow_dispatch:        # manual trigger for testing
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run poster
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
+          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+        run: node src/post.js

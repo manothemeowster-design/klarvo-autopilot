@@ -250,11 +250,10 @@ async function renderAndUploadSlides(content) {
 async function uploadToImgbb(buffer, name) {
   const base64 = buffer.toString('base64');
   const params = new URLSearchParams();
-  params.append('key',   IMGBB_API_KEY);
   params.append('image', base64);
   params.append('name',  name || 'klarvo_slide');
 
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: params });
+  const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: params });
   const data = await res.json();
   if (!data.success) throw new Error('imgbb failed: ' + JSON.stringify(data));
   return data.data.url;

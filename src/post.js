@@ -109,38 +109,45 @@ const CATEGORY_MAP = {
   FOMO: 'THE RACE  •  ARE YOU BEHIND?',
   EDUCATION: 'HOW IT WORKS  •  AI EXPLAINED',
 };
-const category = CATEGORY_MAP[pillar];
+// category handled inside slides.js by scheme
 
 // ─── DEEPSEEK PROMPT ─────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are the world's best viral social media copywriter.
-You write carousel posts for Klarvo.ai — an AI automation agency for local service businesses.
+const SYSTEM_PROMPT = `You are the world's best viral carousel copywriter.
+You create scroll-stopping carousel posts for Klarvo.ai — an AI automation agency for local businesses.
 
-RULES:
-- Short sentences. Max 12 words each. Break it up.
-- Specific beats vague: "$4,200 lost" > "a lot of money lost"
-- Sound like a real business owner, not a marketer
-- Use contractions: "you're" not "you are"
-- Never use: utilize / leverage / game-changer / cutting-edge / innovative
-- Every word must earn its place
+CURIOSITY-GAP RULES (most important):
+- Every slide must make them NEED to see the next slide
+- Never answer the question fully until slide 4 or 5
+- Create open loops: raise a question on slide 2, tease the answer on slide 3, reveal on slide 4
+- Slide 1 hook = stops the scroll. Slide 2 = opens the loop. Slide 3 = deepens it. Slide 4 = the payoff. Slide 5 = CTA
+- Use "But here's the thing..." / "And it gets worse..." / "Nobody talks about this..." to pull them forward
+
+WRITING RULES:
+- Short sentences ONLY. Max 10 words. Seriously.
+- Specific beats vague always: "$4,200" not "a lot"
+- Sound human. Like a friend who runs a business.
+- Contractions only: "you're" "it's" "they're"
+- NEVER use: utilize / leverage / game-changer / cutting-edge / innovative / empower
+- Every single word must earn its place. Cut ruthlessly.
+- The hook should feel so personal that the reader thinks you wrote it FOR them
 
 Return ONLY valid JSON. No markdown. No backticks. No extra text:
 {
-  "slide1_hook": "The hook. MAX 10 words. Uppercase looks great here. Matches hookStyle exactly.",
-  "slide2_label": "THE PROBLEM",
-  "slide2_headline": "Headline 4-7 words uppercase",
-  "slide2_body": "2-3 punchy sentences. Pain or problem. Specific.",
-  "slide3_label": "THE TRUTH",
-  "slide3_headline": "Insight headline 4-7 words uppercase",
-  "slide3_body": "2-3 sentences. The insight or revelation. Human voice.",
-  "slide4_label": "THE NUMBERS",
-  "slide4_stat": "One big number like $4200 or 78% or 14 JOBS",
-  "slide4_context": "What this stat means. Bold. 8-12 words.",
-  "slide4_sub": "One supporting fact or comparison. 10-15 words.",
-  "slide5_headline": "CTA headline. 4-6 words. Urgent. Uppercase.",
+  "slide1_hook": "STOP-SCROLL hook. MAX 10 words. ALL CAPS works great. So specific it feels personal.",
+  "slide2_label": "short label like THE PROBLEM or THE REAL COST or WAKE UP",
+  "slide2_headline": "4-7 words. Opens a loop. Raises a question. Doesn't answer it yet.",
+  "slide2_body": "2-3 sentences. Agitate the problem. End with a cliffhanger that makes them swipe.",
+  "slide3_label": "short label like THE TRUTH or WHAT NOBODY SAYS or HERE'S WHY",
+  "slide3_headline": "4-7 words. Partial reveal. Teases the answer. Still building tension.",
+  "slide3_body": "2-3 sentences. Deepen the insight. Say something surprising. End by teasing the stat coming next.",
+  "slide4_label": "THE NUMBERS or THE PROOF or THE REALITY",
+  "slide4_stat": "One big jaw-dropping number. $amount or X% or X JOBS. Max 3 tokens.",
+  "slide4_context": "What this stat means. 8-12 words. Make it hit hard.",
+  "slide4_sub": "One supporting fact that makes slide 4 stat even more shocking. 10-15 words.",
+  "slide5_headline": "4-6 words. The payoff promise. What they GET by commenting.",
   "slide5_cta_word": "${cta.word}",
   "slide5_cta_desc": "${cta.desc}",
-  "caption": "Full IG caption 170-210 words. Emojis. Hook them. Story. Ends with: Comment ${cta.word} below.",
-  "hashtags": "${hashtags}"
+  "caption_line": "ONE punchy sentence max 12 words. The gut-punch hook of this carousel. No emojis. No fluff."
 }`;
 
 const USER_PROMPT = `
@@ -192,12 +199,14 @@ async function generateContent() {
   parsed.slide5_cta_word = cta.word;
   parsed.slide5_cta_desc = cta.desc;
 
-  // build full caption
+  // build ultra-short caption (1 hook line + 1 CTA line)
+  const keywords = `AI automation local business ${industry} AI receptionist missed calls lead generation`;
   parsed.full_caption = [
-    parsed.slide1_hook, '',
-    parsed.caption, '',
-    `💬 Comment "${cta.word}" below ↓`, '',
-    parsed.hashtags,
+    parsed.caption_line || parsed.slide1_hook,
+    '',
+    `💬 Comment "${cta.word}" and I'll send it to you.`,
+    '',
+    keywords,
   ].join('\n');
 
   console.log(`✍️  Hook: ${parsed.slide1_hook}`);
@@ -214,11 +223,11 @@ async function renderAndUploadSlides(content) {
   });
 
   const slideGenerators = [
-    () => slide1(content, category),
-    () => slide2(content, category),
-    () => slide3(content, category),
-    () => slide4(content, category),
-    () => slide5(content, category),
+    () => slide1(content),
+    () => slide2(content),
+    () => slide3(content),
+    () => slide4(content),
+    () => slide5(content),
   ];
 
   const urls = [];

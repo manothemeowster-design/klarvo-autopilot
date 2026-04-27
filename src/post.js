@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
 import puppeteer from 'puppeteer-core';
-import fs from 'fs';
 import { slide1, slide2, slide3, slide4, slide5 } from './slides.js';
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -11,69 +10,69 @@ const FB_PAGE_ID       = process.env.FB_PAGE_ID;
 
 const CHROMIUM_PATH = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
 
-const MEMORY_FILE = './memory.json';
+// ─── TIME SLOT ─────────────────────────────────────────
+const now = new Date();
+const day = now.getUTCDay();
+const hour = now.getUTCHours();
+const postSlot = hour < 7 ? 0 : hour < 11 ? 0 : hour < 15 ? 1 : hour < 19 ? 2 : 3;
 
-// ─── HUMAN-LIKE TIMING ─────────────────────────────
-function randomDelay(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// ─── SIMPLE CONTENT CONFIG (shortened for clarity) ─────
+const slot = {
+  pillar: 'PAIN',
+  angle: 'you missed calls and lost leads',
+  industry: 'local business',
+  hookStyle: 'SHOCKING_STAT'
+};
 
-// ─── NICHE LOCK (IMPORTANT) ───────────────────────
-const industry = 'roofing';
+// ─── CTA ───────────────────────────────────────────────
+const CTAS = [
+  { word:'AUDIT', desc:"I'll show you lost leads." },
+  { word:'DEMO', desc:"I'll send a quick demo." },
+  { word:'AI', desc:"I'll map your automation." }
+];
+const cta = CTAS[(day + postSlot) % CTAS.length];
 
-// ─── STRUCTURE VARIATION ──────────────────────────
-const STRUCTURES = ['story_first','stat_first','question_first','contrarian_first'];
-const structureMode = STRUCTURES[Math.floor(Math.random() * STRUCTURES.length)];
-
-// ─── CTA LOGIC ────────────────────────────────────
-function getCTA() {
-  const CTAS = ['AUDIT','DEMO','SYSTEM','LOSS'];
-  return CTAS[Math.floor(Math.random() * CTAS.length)];
-}
-const CTA = getCTA();
-
-// ─── MEMORY SYSTEM ────────────────────────────────
-function getMemory() {
-  if (!fs.existsSync(MEMORY_FILE)) return [];
-  return JSON.parse(fs.readFileSync(MEMORY_FILE));
-}
-
-function saveMemory(hook) {
-  const data = getMemory();
-  data.push({ hook, time: Date.now() });
-  fs.writeFileSync(MEMORY_FILE, JSON.stringify(data, null, 2));
-}
-
-const lastHooks = getMemory().slice(-5).map(x => x.hook).join('\n');
-
-// ─── PROMPT ───────────────────────────────────────
+// ─── PROMPTS ───────────────────────────────────────────
 const SYSTEM_PROMPT = `
-You write HIGH-CONVERTING carousel content.
+Return ONLY valid JSON.
+If you include ANY text outside JSON, response will be rejected.
 
-RULES:
-- Extremely specific
-- Feels real
-- No generic AI tone
-- Create curiosity gaps
-- Add one pattern-breaking slide (very short emotional hit)
-
-STRUCTURE MODE: ${structureMode}
-
-Recent hooks (DO NOT repeat style):
-${lastHooks}
+{
+  "slide1_hook": "hook",
+  "slide1_pills": ["a","b","c","d"],
+  "slide2_label": "x",
+  "slide2_headline": "x",
+  "slide2_body": "x",
+  "slide3_label": "x",
+  "slide3_headline": "x",
+  "slide3_body": "x",
+  "slide4_label": "x",
+  "slide4_stat": "x",
+  "slide4_context": "x",
+  "slide4_sub": "x",
+  "slide5_headline": "x",
+  "slide5_cta_word": "${cta.word}",
+  "slide5_cta_desc": "${cta.desc}",
+  "caption_line": "x"
+}
 `;
 
 const USER_PROMPT = `
-Target: ${industry}
-
-Create 5-slide carousel.
-
-Make it feel like a real business scenario.
-
-CTA word: ${CTA}
+Make viral carousel content about:
+${slot.angle}
 `;
 
-// ─── GENERATE CONTENT ─────────────────────────────
+// ─── JSON EXTRACTOR (CRITICAL FIX) ─────────────────────
+function extractJSON(text) {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end === -1) {
+    throw new Error('No JSON found:\n' + text);
+  }
+  return text.slice(start, end + 1);
+}
+
+// ─── GENERATE CONTENT ─────────────────────────────────
 async function generateContent() {
   const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
@@ -83,7 +82,6 @@ async function generateContent() {
     },
     body: JSON.stringify({
       model: 'deepseek-chat',
-      temperature: 1.1,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: USER_PROMPT }
@@ -92,20 +90,46 @@ async function generateContent() {
   });
 
   const data = await res.json();
-  const parsed = JSON.parse(data.choices[0].message.content);
+  if (!data.choices) throw new Error(JSON.stringify(data));
 
-  saveMemory(parsed.slide1_hook);
+  const raw = data.choices[0].message.content.trim();
 
-  parsed.caption = `
-${parsed.slide1_hook}
+  const jsonString = extractJSON(raw);
 
-Comment "${CTA}" and I’ll send a real example from a ${industry} business.
-`;
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonString);
+  } catch (err) {
+    console.error('RAW RESPONSE:\n', raw);
+    throw err;
+  }
+
+  parsed.slide5_cta_word = cta.word;
+  parsed.slide5_cta_desc = cta.desc;
+
+  parsed.full_caption = [
+    parsed.caption_line || parsed.slide1_hook,
+    '',
+    `Comment "${cta.word}" to get it.`,
+  ].join('\n');
 
   return parsed;
 }
 
-// ─── RENDER ───────────────────────────────────────
+// ─── RETRY WRAPPER ────────────────────────────────────
+async function generateWithRetry(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await generateContent();
+    } catch (err) {
+      console.log(`Retry ${i + 1}...`);
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+  throw new Error('Failed after retries');
+}
+
+// ─── RENDER ───────────────────────────────────────────
 async function renderSlides(content) {
   const browser = await puppeteer.launch({
     executablePath: CHROMIUM_PATH,
@@ -113,24 +137,20 @@ async function renderSlides(content) {
     headless: true,
   });
 
-  const generators = [
-    slide1, slide2, slide3, slide4, slide5
-  ];
-
+  const slides = [slide1, slide2, slide3, slide4, slide5];
   const urls = [];
 
-  for (let i = 0; i < generators.length; i++) {
+  for (let i = 0; i < slides.length; i++) {
+    const html = slides[i](content);
     const page = await browser.newPage();
-    await page.setViewport({ width: 1080, height: 1080 });
 
-    const html = generators[i](content);
+    await page.setViewport({ width: 1080, height: 1080 });
     await page.setContent(html);
-    await new Promise(r => setTimeout(r, 1500));
 
     const buffer = await page.screenshot({ type: 'png' });
     await page.close();
 
-    const url = await upload(buffer, i);
+    const url = await uploadToGithub(buffer);
     urls.push(url);
   }
 
@@ -138,78 +158,86 @@ async function renderSlides(content) {
   return urls;
 }
 
-// ─── UPLOAD ───────────────────────────────────────
-async function upload(buffer, i) {
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const REPO = process.env.GITHUB_REPOSITORY;
+// ─── UPLOAD ───────────────────────────────────────────
+async function uploadToGithub(buffer) {
+  const fileName = `slides/${Date.now()}.png`;
+  const base64 = buffer.toString("base64");
 
-  const path = `slides/${Date.now()}_${i}.png`;
-
-  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+  const res = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/${fileName}`, {
     method: "PUT",
     headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       message: "upload",
-      content: buffer.toString("base64")
+      content: base64
     })
   });
 
   const data = await res.json();
-  return `https://raw.githubusercontent.com/${REPO}/main/${path}`;
+  return `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY}/main/${fileName}`;
 }
 
-// ─── POST TO IG ───────────────────────────────────
-async function postToIG(images, caption) {
-  const children = [];
+// ─── INSTAGRAM POST ───────────────────────────────────
+async function postToInstagram(images, caption) {
+  const ids = [];
 
-  for (let img of images) {
+  for (const url of images) {
     const res = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media`, {
       method: 'POST',
       body: JSON.stringify({
-        image_url: img,
+        image_url: url,
         is_carousel_item: true,
         access_token: IG_ACCESS_TOKEN
       }),
       headers: { 'Content-Type': 'application/json' }
     });
+
     const d = await res.json();
-    children.push(d.id);
-    await new Promise(r => setTimeout(r, randomDelay(1000,3000)));
+    ids.push(d.id);
   }
 
   const car = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       media_type: 'CAROUSEL',
-      children,
+      children: ids,
       caption,
       access_token: IG_ACCESS_TOKEN
-    })
+    }),
+    headers: { 'Content-Type': 'application/json' }
   });
 
-  const c = await car.json();
+  const carData = await car.json();
 
-  await new Promise(r => setTimeout(r, randomDelay(5000,9000)));
+  await new Promise(r => setTimeout(r, 5000));
 
   await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/media_publish`, {
     method: 'POST',
     body: JSON.stringify({
-      creation_id: c.id,
+      creation_id: carData.id,
       access_token: IG_ACCESS_TOKEN
     }),
     headers: { 'Content-Type': 'application/json' }
   });
 }
 
-// ─── MAIN ─────────────────────────────────────────
+// ─── MAIN ─────────────────────────────────────────────
 async function main() {
-  const content = await generateContent();
-  const images = await renderSlides(content);
-  await postToIG(images, content.caption);
+  try {
+    console.log("RUNNING...");
+
+    const content = await generateWithRetry();
+    const images = await renderSlides(content);
+
+    await postToInstagram(images, content.full_caption);
+
+    console.log("DONE");
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
 
 main();

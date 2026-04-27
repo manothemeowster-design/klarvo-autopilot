@@ -1,0 +1,31 @@
+name: Keep Workflows Alive
+
+# GitHub automatically DISABLES scheduled workflows
+# if the repo has no activity for 60 days.
+# This workflow runs weekly and makes a tiny commit
+# to keep all your crons alive forever.
+
+on:
+  schedule:
+    - cron: '0 12 * * 1'   # every Monday at 12pm UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Keep workflows active
+        run: |
+          git config user.email "bot@klarvo.ai"
+          git config user.name "Klarvo Bot"
+          echo "$(date -u)" > .keepalive
+          git add .keepalive
+          git commit -m "chore: keep workflows active [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

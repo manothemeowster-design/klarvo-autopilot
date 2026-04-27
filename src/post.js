@@ -133,8 +133,8 @@ WRITING RULES:
 
 Return ONLY valid JSON. No markdown. No backticks. No extra text:
 {
-  "slide1_hook": "STOP-SCROLL hook. MAX 10 words. ALL CAPS works great. So specific it feels personal.",
-  "slide1_pills": ["Short label 2-3 words", "Short label 2-3 words", "Short label 2-3 words", "Short label 2-3 words"],
+  "slide1_hook": "STOP-SCROLL hook. MAX 8 words — shorter = bigger font = more impact. Proper case, NOT all caps. So specific it feels personal to one type of business owner.",
+  "slide1_pills": ["Data point or micro-detail from the story. 2-3 words. Like '3 missed calls' or '$11,500 gone' or '1 Monday morning' or '78% never call back'. Make each pill feel like a tiny shocking detail from the carousel narrative.","Same rule","Same rule","Same rule"],
   "slide2_label": "short label like THE PROBLEM or THE REAL COST or WAKE UP",
   "slide2_headline": "4-7 words. Opens a loop. Raises a question. Doesn't answer it yet.",
   "slide2_body": "2-3 sentences. Agitate the problem. End with a cliffhanger that makes them swipe.",

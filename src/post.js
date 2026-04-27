@@ -198,7 +198,7 @@ async function generateContent() {
     body: JSON.stringify({
       model: 'deepseek-chat',
       max_tokens: 2200,
-      temperature: 1.1,
+      temperature: 0.9,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user',   content: USER_PROMPT   },
@@ -209,9 +209,31 @@ async function generateContent() {
   const data = await res.json();
   if (!data.choices) throw new Error('DeepSeek error: ' + JSON.stringify(data));
 
-  const raw    = data.choices[0].message.content.trim();
-  const clean  = raw.replace(/```json|```/g, '').trim();
-  const parsed = JSON.parse(clean);
+  const raw = data.choices[0].message.content.trim();
+  console.log('📄 Raw DeepSeek response (first 300 chars):', raw.slice(0, 300));
+
+  // Bulletproof JSON extraction — handles backticks, extra text, smart quotes
+  let parsed;
+  try {
+    // Step 1: strip markdown fences
+    let clean = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    // Step 2: extract just the JSON object if there's surrounding text
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON object found in response');
+    clean = jsonMatch[0];
+
+    // Step 3: fix common DeepSeek issues
+    // Replace smart/curly quotes with straight quotes
+    clean = clean
+      .replace(/[\u2018\u2019]/g, "'")   // smart single quotes → '
+      .replace(/[\u201C\u201D]/g, '"');  // smart double quotes → "
+
+    parsed = JSON.parse(clean);
+  } catch (e) {
+    console.error('❌ JSON parse failed. Full raw response:\n', raw);
+    throw new Error('Failed to parse DeepSeek JSON: ' + e.message);
+  }
 
   // Guarantee CTA is correct regardless of what DeepSeek returns
   parsed.slide5_cta_word = cta.word;

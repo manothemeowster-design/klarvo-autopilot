@@ -134,6 +134,7 @@ WRITING RULES:
 Return ONLY valid JSON. No markdown. No backticks. No extra text:
 {
   "slide1_hook": "STOP-SCROLL hook. MAX 10 words. ALL CAPS works great. So specific it feels personal.",
+  "slide1_pills": ["Short label 2-3 words", "Short label 2-3 words", "Short label 2-3 words", "Short label 2-3 words"],
   "slide2_label": "short label like THE PROBLEM or THE REAL COST or WAKE UP",
   "slide2_headline": "4-7 words. Opens a loop. Raises a question. Doesn't answer it yet.",
   "slide2_body": "2-3 sentences. Agitate the problem. End with a cliffhanger that makes them swipe.",

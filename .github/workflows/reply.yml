@@ -3,34 +3,44 @@ name: Reply to Comments
 on:
   schedule:
     - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:
+  workflow_dispatch:          # manual trigger still works
 
+# No "contents: write" needed anymore — no git commits!
 permissions:
-  contents: write
+  actions: write   # needed for cache read/write only
 
 jobs:
   reply:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - run: npm install
+      # ── Restore replied.json from cache ──────────────────────────────────
+      # This replaces the old git commit approach entirely
+      # Cache persists between runs, zero conflict risk
+      - name: Restore replied cache
+        uses: actions/cache@v3
+        with:
+          path: replied.json
+          key: replied-${{ github.run_number }}
+          restore-keys: |
+            replied-
 
-      - run: node src/reply.js
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run reply bot
+        run: node src/reply.js
         env:
-          IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
+          IG_ACCOUNT_ID:  ${{ secrets.IG_ACCOUNT_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
 
-      - name: Save replied list
-        run: |
-          git config user.email "bot@klarvo.ai"
-          git config user.name "Klarvo Bot"
-          git add replied.json
-          git diff --staged --quiet || git commit -m "update replied comments"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # ── Cache is saved automatically by actions/cache after job completes ─
+      # No git add, git commit, git push needed. Zero conflicts. Ever.

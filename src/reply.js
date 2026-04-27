@@ -1,17 +1,19 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 
-const IG_ID = process.env.IG_ACCOUNT_ID;
-const TOKEN = process.env.IG_ACCESS_TOKEN;
+const IG_ID  = process.env.IG_ACCOUNT_ID;
+const TOKEN  = process.env.IG_ACCESS_TOKEN;
 
-// Track replied comments so we don't double-reply
-const REPLIED_FILE = 'replied.json';
-let replied = fs.existsSync(REPLIED_FILE)
-  ? JSON.parse(fs.readFileSync(REPLIED_FILE))
-  : [];
+// ─── State file (persisted via GitHub Actions Cache, zero git conflicts) ─────
+const STATE_FILE = 'replied.json';
+let replied = new Set(
+  fs.existsSync(STATE_FILE)
+    ? JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'))
+    : []
+);
 
+// ─── Keywords (case-insensitive) ──────────────────────────────────────────────
 const KEYWORDS = {
-  // Lead capture
   AUDIT:      "Sent! 📩 Check your DMs for your free lead loss audit.",
   DEMO:       "Sent! 📩 Your 2-min demo link is in your DMs.",
   AI:         "Sent! 📩 Your custom AI map is in your DMs.",
@@ -44,59 +46,84 @@ const KEYWORDS = {
   LFG:        "Sent! 🚀 Check your DMs, let's go.",
 };
 
-// Step 1 — get recent posts
+// ─── API helpers ──────────────────────────────────────────────────────────────
 async function getPosts() {
-  const res = await fetch(
+  const res  = await fetch(
     `https://graph.facebook.com/v19.0/${IG_ID}/media?fields=id&limit=10&access_token=${TOKEN}`
   );
   const data = await res.json();
+  if (data.error) { console.error('getPosts error:', data.error); return []; }
   return data.data || [];
 }
 
-// Step 2 — get comments on a post
 async function getComments(postId) {
-  const res = await fetch(
-    `https://graph.facebook.com/v19.0/${postId}/comments?fields=id,text,username&access_token=${TOKEN}`
+  const res  = await fetch(
+    `https://graph.facebook.com/v19.0/${postId}/comments?fields=id,text,username,timestamp&limit=50&access_token=${TOKEN}`
   );
   const data = await res.json();
+  if (data.error) { console.error('getComments error:', data.error); return []; }
   return data.data || [];
 }
 
-// Step 3 — reply to a comment
 async function replyToComment(commentId, message) {
-  const res = await fetch(`https://graph.facebook.com/v19.0/${commentId}/replies`, {
-    method: 'POST',
+  const res  = await fetch(`https://graph.facebook.com/v19.0/${commentId}/replies`, {
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, access_token: TOKEN })
+    body:    JSON.stringify({ message, access_token: TOKEN })
   });
   const data = await res.json();
-  if (data.error) console.error('Reply error:', data.error);
+  if (data.error) { console.error('replyToComment error:', data.error); return null; }
   return data;
 }
 
-// Main
+// ─── Main ─────────────────────────────────────────────────────────────────────
+console.log('🤖 Klarvo reply bot — checking comments...');
+
 const posts = await getPosts();
+console.log(`📄 Found ${posts.length} recent posts`);
+
+let repliedCount = 0;
 
 for (const post of posts) {
   const comments = await getComments(post.id);
 
   for (const comment of comments) {
-    if (replied.includes(comment.id)) continue; // already handled
+    // Skip if already handled
+    if (replied.has(comment.id)) continue;
 
-    const commentUpper = comment.text?.toUpperCase() || '';
+    // Only process comments from the last 2 hours (fresh ones)
+    const age = Date.now() - new Date(comment.timestamp).getTime();
+    if (age > 1000 * 60 * 60 * 2) {
+      replied.add(comment.id); // mark old ones so we skip faster next time
+      continue;
+    }
 
+    const commentUpper = (comment.text || '').toUpperCase();
     const keyword = Object.keys(KEYWORDS).find(k =>
       commentUpper.includes(k.toUpperCase())
     );
 
     if (keyword) {
-      console.log(`Replying to @${comment.username} — keyword: ${keyword}`);
-      await replyToComment(comment.id, KEYWORDS[keyword]);
-      replied.push(comment.id);
+      console.log(`💬 @${comment.username}: "${comment.text}" → [${keyword}]`);
+      const result = await replyToComment(comment.id, KEYWORDS[keyword]);
+
+      if (result) {
+        console.log(`  ✅ Replied successfully`);
+        repliedCount++;
+      } else {
+        console.log(`  ❌ Reply failed — will retry next run`);
+        continue; // don't mark as replied so we retry
+      }
     }
+
+    replied.add(comment.id); // mark as processed
   }
 }
 
-// Save replied list
-fs.writeFileSync(REPLIED_FILE, JSON.stringify(replied));
-console.log('Done. Total replied comments tracked:', replied.length);
+// ─── Save state (picked up by Actions Cache on next run) ─────────────────────
+// Keep only last 500 IDs to prevent file growing forever
+const repliedArray = [...replied].slice(-500);
+fs.writeFileSync(STATE_FILE, JSON.stringify(repliedArray));
+
+console.log(`\n✅ Done. Replied to ${repliedCount} comments this run.`);
+console.log(`📦 Tracking ${repliedArray.length} comment IDs in cache.`);

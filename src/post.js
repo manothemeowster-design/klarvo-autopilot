@@ -18,46 +18,46 @@ const postSlot = hour < 7 ? 0 : hour < 11 ? 0 : hour < 15 ? 1 : hour < 19 ? 2 : 
 
 const CALENDAR = {
   0: [
-    { pillar:'FOMO',      angle:'competitors planned their week with AI while you rested',            industry:'general local business', hookStyle:'QUESTION'      },
+    { pillar:'FOMO',      angle:'competitors planned their week with AI while you rested',             industry:'general local business', hookStyle:'QUESTION'      },
     { pillar:'EDUCATION', angle:'how AI handles scheduling and bookings automatically on weekends',    industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
     { pillar:'PAIN',      angle:'Sunday leads that hit voicemail got taken by a competitor by Monday', industry:'HVAC',                   hookStyle:'STORY'         },
     { pillar:'FOMO',      angle:'the business owner who never misses a Sunday evening inquiry',        industry:'plumbing',               hookStyle:'SHOCKING_STAT' },
   ],
   1: [
-    { pillar:'PAIN',      angle:'you started Monday with 3 missed calls sitting in voicemail',        industry:'roofing',                hookStyle:'SHOCKING_STAT' },
-    { pillar:'EDUCATION', angle:'what an AI receptionist does from 8am to 8pm in one day',            industry:'HVAC',                   hookStyle:'HOW_IT_WORKS'  },
-    { pillar:'PROOF',     angle:'businesses that added AI in Jan closed 40% more jobs by March',      industry:'electrical',             hookStyle:'BEFORE_AFTER'  },
+    { pillar:'PAIN',      angle:'you started Monday with 3 missed calls sitting in voicemail',         industry:'roofing',                hookStyle:'SHOCKING_STAT' },
+    { pillar:'EDUCATION', angle:'what an AI receptionist does from 8am to 8pm in one day',             industry:'HVAC',                   hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'PROOF',     angle:'businesses that added AI in Jan closed 40% more jobs by March',       industry:'electrical',             hookStyle:'BEFORE_AFTER'  },
     { pillar:'FOMO',      angle:"Monday 9am: competitor's AI already booked 2 installs. Did yours?",  industry:'general local business', hookStyle:'CONTRARIAN'    },
   ],
   2: [
-    { pillar:'EDUCATION', angle:'the 3am call that books a $4000 AC job — here\'s who answers it',   industry:'HVAC',                   hookStyle:'STORY'         },
-    { pillar:'PAIN',      angle:'your follow-up delay is costing you 40% of leads you paid for',      industry:'general local business', hookStyle:'SHOCKING_STAT' },
-    { pillar:'PROOF',     angle:'AI receptionist vs hiring a front desk: real cost breakdown',         industry:'dental',                 hookStyle:'BEFORE_AFTER'  },
+    { pillar:'EDUCATION', angle:'the 3am call that books a $4000 AC job — here\'s who answers it',    industry:'HVAC',                   hookStyle:'STORY'         },
+    { pillar:'PAIN',      angle:'your follow-up delay is costing you 40% of leads you paid for',       industry:'general local business', hookStyle:'SHOCKING_STAT' },
+    { pillar:'PROOF',     angle:'AI receptionist vs hiring a front desk: real cost breakdown',          industry:'dental',                 hookStyle:'BEFORE_AFTER'  },
     { pillar:'EDUCATION', angle:'how AI websites rank on Google without you writing a single word',    industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
   ],
   3: [
-    { pillar:'PROOF',     angle:'$78,000 in recovered jobs from missed calls in 90 days with AI',     industry:'plumbing',               hookStyle:'SHOCKING_STAT' },
-    { pillar:'FOMO',      angle:'the local HVAC company outranking you on Google uses AI SEO now',    industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
-    { pillar:'PAIN',      angle:'you spent $1,200 on ads. The lead called. Nobody answered 4 hours.', industry:'roofing',                hookStyle:'STORY'         },
-    { pillar:'EDUCATION', angle:'the AI agent that texts back every missed call in under 60 seconds', industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'PROOF',     angle:'$78,000 in recovered jobs from missed calls in 90 days with AI',      industry:'plumbing',               hookStyle:'SHOCKING_STAT' },
+    { pillar:'FOMO',      angle:'the local HVAC company outranking you on Google uses AI SEO now',     industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
+    { pillar:'PAIN',      angle:'you spent $1,200 on ads. The lead called. Nobody answered 4 hours.',  industry:'roofing',                hookStyle:'STORY'         },
+    { pillar:'EDUCATION', angle:'the AI agent that texts back every missed call in under 60 seconds',  industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
   ],
   4: [
-    { pillar:'FOMO',      angle:'3 businesses in your city quietly switched to AI agents this month', industry:'general local business', hookStyle:'SHOCKING_STAT' },
-    { pillar:'PAIN',      angle:"you lost 11 leads to voicemail this week. Here's the math.",         industry:'HVAC',                   hookStyle:'PROOF'         },
-    { pillar:'PROOF',     angle:'AI booked 14 service calls while owner was on a job site',           industry:'electrical',             hookStyle:'STORY'         },
-    { pillar:'FOMO',      angle:"the businesses winning in 2025 all share one thing you don't have",  industry:'home services',          hookStyle:'CONTRARIAN'    },
+    { pillar:'FOMO',      angle:'3 businesses in your city quietly switched to AI agents this month',  industry:'general local business', hookStyle:'SHOCKING_STAT' },
+    { pillar:'PAIN',      angle:"you lost 11 leads to voicemail this week. Here's the math.",          industry:'HVAC',                   hookStyle:'PROOF'         },
+    { pillar:'PROOF',     angle:'AI booked 14 service calls while owner was on a job site',            industry:'electrical',             hookStyle:'STORY'         },
+    { pillar:'FOMO',      angle:"the businesses winning in 2025 all share one thing you don't have",   industry:'home services',          hookStyle:'CONTRARIAN'    },
   ],
   5: [
-    { pillar:'PROOF',     angle:"from 4 missed calls a day to zero — this plumber's story",           industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
-    { pillar:'PAIN',      angle:"you grind all week. Your AI works every second you don't.",          industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
-    { pillar:'EDUCATION', angle:'what changes in the first 48 hours after setting up AI automation',  industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
-    { pillar:'FOMO',      angle:'your Friday night. Their AI: 3 jobs booked, 2 follow-ups sent.',     industry:'roofing',                hookStyle:'SHOCKING_STAT' },
+    { pillar:'PROOF',     angle:"from 4 missed calls a day to zero — this plumber's story",            industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
+    { pillar:'PAIN',      angle:"you grind all week. Your AI works every second you don't.",           industry:'HVAC',                   hookStyle:'CONTRARIAN'    },
+    { pillar:'EDUCATION', angle:'what changes in the first 48 hours after setting up AI automation',   industry:'general local business', hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'FOMO',      angle:'your Friday night. Their AI: 3 jobs booked, 2 follow-ups sent.',      industry:'roofing',                hookStyle:'SHOCKING_STAT' },
   ],
   6: [
-    { pillar:'PAIN',      angle:'on a job site Saturday. Phone dies. 2 leads gone forever.',          industry:'HVAC',                   hookStyle:'STORY'         },
-    { pillar:'PROOF',     angle:'how this plumber made an extra $23k his first month with AI',        industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
-    { pillar:'FOMO',      angle:"every contractor you know is looking into AI. Most won't act.",      industry:'general local business', hookStyle:'CONTRARIAN'    },
-    { pillar:'EDUCATION', angle:'what actually happens when a customer calls after hours',            industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
+    { pillar:'PAIN',      angle:'on a job site Saturday. Phone dies. 2 leads gone forever.',           industry:'HVAC',                   hookStyle:'STORY'         },
+    { pillar:'PROOF',     angle:'how this plumber made an extra $23k his first month with AI',         industry:'plumbing',               hookStyle:'BEFORE_AFTER'  },
+    { pillar:'FOMO',      angle:"every contractor you know is looking into AI. Most won't act.",       industry:'general local business', hookStyle:'CONTRARIAN'    },
+    { pillar:'EDUCATION', angle:'what actually happens when a customer calls after hours',             industry:'home services',          hookStyle:'HOW_IT_WORKS'  },
   ],
 };
 
@@ -102,15 +102,6 @@ const HASHTAGS = [
 ];
 const hashtags = HASHTAGS[(day + postSlot) % HASHTAGS.length];
 
-// ─── CATEGORY LABEL (top right of slides) ────────────────────────────────────
-const CATEGORY_MAP = {
-  PAIN: 'LEAD LOSS  •  WAKE UP CALL',
-  PROOF: 'REAL RESULTS  •  CASE STUDY',
-  FOMO: 'THE RACE  •  ARE YOU BEHIND?',
-  EDUCATION: 'HOW IT WORKS  •  AI EXPLAINED',
-};
-// category handled inside slides.js by scheme
-
 // ─── DEEPSEEK PROMPT ─────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are the world's best viral carousel copywriter.
 You create scroll-stopping carousel posts for Klarvo.ai — an AI automation agency for local businesses.
@@ -131,10 +122,29 @@ WRITING RULES:
 - Every single word must earn its place. Cut ruthlessly.
 - The hook should feel so personal that the reader thinks you wrote it FOR them
 
+PILL RULES (critical for design):
+- Pills float around the headline text on slide 1
+- They must feel like tiny story fragments or data points from THIS specific carousel
+- NOT generic service names like "AI Receptionist" or "Auto Follow-Up"
+- YES: specific micro-details like "3 missed calls", "$11,500 gone", "1 Monday morning", "78% never call back", "2am booking", "4 voicemails"
+- Each pill = one shocking little detail that makes the reader curious
+- Think: what are the 4 most alarming mini-facts from this story?
+
+HOOK RULES (critical for font size):
+- MAX 8 words — shorter hook = bigger font = more visual impact on the slide
+- Proper case (Title Case or sentence case) — NOT ALL CAPS
+- The slide renderer makes short hooks display at 148–168px. Long hooks drop to 88px. SHORT = HUGE.
+- Best performing pattern: "[Specific scenario]. [Gut-punch consequence]."
+
 Return ONLY valid JSON. No markdown. No backticks. No extra text:
 {
-  "slide1_hook": "STOP-SCROLL hook. MAX 8 words — shorter = bigger font = more impact. Proper case, NOT all caps. So specific it feels personal to one type of business owner.",
-  "slide1_pills": ["Data point or micro-detail from the story. 2-3 words. Like '3 missed calls' or '$11,500 gone' or '1 Monday morning' or '78% never call back'. Make each pill feel like a tiny shocking detail from the carousel narrative.","Same rule","Same rule","Same rule"],
+  "slide1_hook": "MAX 8 words. Proper case not ALL CAPS. Short = huge font = more impact.",
+  "slide1_pills": [
+    "Micro-detail from story. 2-4 words. Like '3 missed calls' or '$11,500 gone'",
+    "Another shocking mini-fact from this carousel. 2-4 words.",
+    "Another one. 2-4 words. Make it feel alarming or specific.",
+    "Fourth one. 2-4 words. Could be a time detail, dollar amount, or outcome."
+  ],
   "slide2_label": "short label like THE PROBLEM or THE REAL COST or WAKE UP",
   "slide2_headline": "4-7 words. Opens a loop. Raises a question. Doesn't answer it yet.",
   "slide2_body": "2-3 sentences. Agitate the problem. End with a cliffhanger that makes them swipe.",
@@ -144,7 +154,7 @@ Return ONLY valid JSON. No markdown. No backticks. No extra text:
   "slide4_label": "THE NUMBERS or THE PROOF or THE REALITY",
   "slide4_stat": "One big jaw-dropping number. $amount or X% or X JOBS. Max 3 tokens.",
   "slide4_context": "What this stat means. 8-12 words. Make it hit hard.",
-  "slide4_sub": "One supporting fact that makes slide 4 stat even more shocking. 10-15 words.",
+  "slide4_sub": "One supporting fact that makes the stat even more shocking. 10-15 words.",
   "slide5_headline": "4-6 words. The payoff promise. What they GET by commenting.",
   "slide5_cta_word": "${cta.word}",
   "slide5_cta_desc": "${cta.desc}",
@@ -170,7 +180,8 @@ ${pillar === 'PROOF'     ? 'Lead with a real-feeling specific result. Numbers mu
 ${pillar === 'FOMO'      ? "Their competitor is winning RIGHT NOW with AI. Genuine urgency. Make them feel like they're watching a race they're already losing." : ''}
 ${pillar === 'EDUCATION' ? "Explain ONE specific AI thing simply — like explaining to a friend at lunch. No jargon. What it does, how it works, what changes." : ''}
 
-Slide 1 hook: use ${hookStyle} style.
+Slide 1 hook: use ${hookStyle} style. MAX 8 WORDS. Proper case. Short = huge = better.
+Pills: make them story-specific micro-details, NOT generic service names.
 Make every word hit hard. Cut anything that doesn't.
 VARIETY DIRECTION THIS POST: ${CURRENT_VARIETY} — make sure this carousel feels completely different from the last one.
 FORBIDDEN: Do not start the hook with "$4,200" or "62%" or any stat you've used before — be original every time.
@@ -198,15 +209,25 @@ async function generateContent() {
   const data = await res.json();
   if (!data.choices) throw new Error('DeepSeek error: ' + JSON.stringify(data));
 
-  const raw   = data.choices[0].message.content.trim();
-  const clean = raw.replace(/```json|```/g, '').trim();
+  const raw    = data.choices[0].message.content.trim();
+  const clean  = raw.replace(/```json|```/g, '').trim();
   const parsed = JSON.parse(clean);
 
-  // ensure cta word is correct
+  // Guarantee CTA is correct regardless of what DeepSeek returns
   parsed.slide5_cta_word = cta.word;
   parsed.slide5_cta_desc = cta.desc;
 
-  // build ultra-short caption (1 hook line + 1 CTA line)
+  // Guarantee 4 pills exist — fallback to story-flavored defaults if short
+  if (!parsed.slide1_pills || parsed.slide1_pills.length < 4) {
+    parsed.slide1_pills = [
+      parsed.slide1_pills?.[0] || '1 missed call',
+      parsed.slide1_pills?.[1] || '$4,200 gone',
+      parsed.slide1_pills?.[2] || '78% don\'t call back',
+      parsed.slide1_pills?.[3] || '2am booking',
+    ];
+  }
+
+  // Build ultra-short caption
   const keywords = `AI automation local business ${industry} AI receptionist missed calls lead generation`;
   parsed.full_caption = [
     parsed.caption_line || parsed.slide1_hook,
@@ -217,6 +238,7 @@ async function generateContent() {
   ].join('\n');
 
   console.log(`✍️  Hook: ${parsed.slide1_hook}`);
+  console.log(`💊  Pills: ${parsed.slide1_pills.join(' | ')}`);
   return parsed;
 }
 
@@ -251,7 +273,7 @@ async function renderAndUploadSlides(content) {
       const buffer = await page.screenshot({ type: 'png' });
       await page.close();
 
-      const url = await uploadToImgbb(buffer, `klarvo_slide_${i + 1}`);
+      const url = await uploadToGitHub(buffer, `klarvo_slide_${i + 1}`);
       urls.push(url);
       console.log(`✅ Slide ${i + 1}/5 → ${url}`);
     }
@@ -262,19 +284,19 @@ async function renderAndUploadSlides(content) {
   return urls;
 }
 
-// ─── UPLOAD TO GITHUB (no external service needed) ───────────────────────────
-async function uploadToImgbb(buffer, name) {
+// ─── UPLOAD TO GITHUB ─────────────────────────────────────────────────────────
+async function uploadToGitHub(buffer, name) {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const REPO = process.env.GITHUB_REPOSITORY; // auto-set by Actions
-  const fileName = `slides/${Date.now()}_${name || "slide"}.png`;
-  const base64 = buffer.toString("base64");
+  const REPO         = process.env.GITHUB_REPOSITORY;
+  const fileName     = `slides/${Date.now()}_${name || 'slide'}.png`;
+  const base64       = buffer.toString('base64');
 
   const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${fileName}`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Authorization": `Bearer ${GITHUB_TOKEN}`,
-      "Content-Type": "application/json",
-      "X-GitHub-Api-Version": "2022-11-28"
+      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Content-Type': 'application/json',
+      'X-GitHub-Api-Version': '2022-11-28',
     },
     body: JSON.stringify({
       message: `slide: ${fileName}`,
@@ -283,10 +305,9 @@ async function uploadToImgbb(buffer, name) {
   });
 
   const data = await res.json();
-  if (!data.content) throw new Error("GitHub upload failed: " + JSON.stringify(data));
-  // Use raw URL — publicly accessible even from private repos via token
-  const rawUrl = `https://raw.githubusercontent.com/${REPO}/main/${fileName}`;
-  return rawUrl;
+  if (!data.content) throw new Error('GitHub upload failed: ' + JSON.stringify(data));
+
+  return `https://raw.githubusercontent.com/${REPO}/main/${fileName}`;
 }
 
 // ─── POST CAROUSEL TO INSTAGRAM ───────────────────────────────────────────────
@@ -344,7 +365,6 @@ async function postCarouselToInstagram(imageUrls, caption) {
 // ─── POST TO FACEBOOK ─────────────────────────────────────────────────────────
 async function postToFacebook(imageUrls, message) {
   console.log('\n📘 Posting to Facebook...');
-  // FB gets the hook slide as the image
   const res = await fetch(`https://graph.facebook.com/v19.0/${FB_PAGE_ID}/photos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

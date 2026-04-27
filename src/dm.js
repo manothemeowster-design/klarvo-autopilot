@@ -5,14 +5,12 @@ const IG_ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN;
 const IG_ACCOUNT_ID  = process.env.IG_ACCOUNT_ID;
 const PROCESSED_FILE = 'data/processed_comments.json';
 
-const CALENDLY = 'https://calendly.com/klarvoai/30min';
-
-const DM_REPLIES = {
-  AUDIT:  `Hey! 👋 Here's your free lead loss audit — book a quick call and I'll show you exactly where you're losing leads: ${CALENDLY}`,
-  DEMO:   `Hey! 👋 Here's the link to see a 2-min live demo of the AI system: ${CALENDLY}`,
-  AI:     `Hey! 👋 Here's where you can get your free custom AI roadmap for your business: ${CALENDLY}`,
-  SYSTEM: `Hey! 👋 I'll walk you through the exact AI setup on a quick call — book here: ${CALENDLY}`,
-  COST:   `Hey! 👋 Full pricing breakdown is easier to walk through live — grab a slot here: ${CALENDLY}`,
+const REPLIES = {
+  AUDIT:  `Hey! 👋 We'd love to show you exactly where you're losing leads — book your free audit via the link in our bio 🔗`,
+  DEMO:   `Hey! 👋 Grab a 2-min demo slot via the link in our bio 🔗`,
+  AI:     `Hey! 👋 Your free custom AI roadmap is one click away — link in bio 🔗`,
+  SYSTEM: `Hey! 👋 We'll walk you through the exact setup — book via the link in our bio 🔗`,
+  COST:   `Hey! 👋 Full pricing breakdown on a quick call — link in our bio 🔗`,
 };
 
 function loadProcessed() {
@@ -44,27 +42,26 @@ async function getComments(mediaId) {
   return data.data || [];
 }
 
-async function sendDM(commentId, message) {
-  const res = await fetch(`https://graph.facebook.com/v19.0/${IG_ACCOUNT_ID}/messages`, {
+async function replyToComment(commentId, username, message) {
+  const res = await fetch(
+    `https://graph.facebook.com/v19.0/${commentId}/replies`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      recipient:    { comment_id: commentId },
-      message:      { text: message },
+      message:      `@${username} ${message}`,
       access_token: IG_ACCESS_TOKEN,
     }),
   });
   return res.json();
 }
 
-// Works for: AUDIT, audit, Audit, "comment AUDIT", "I want audit" etc.
 function detectKeyword(text = '') {
   const upper = text.trim().toUpperCase();
-  return Object.keys(DM_REPLIES).find(k => upper.includes(k)) || null;
+  return Object.keys(REPLIES).find(k => upper.includes(k)) || null;
 }
 
 async function main() {
-  console.log('🤖 Auto-DM starting…');
+  console.log('🤖 Auto-reply starting…');
 
   const processed = loadProcessed();
   let sent = 0;
@@ -84,16 +81,16 @@ async function main() {
       const keyword = detectKeyword(comment.text);
       if (!keyword) continue;
 
-      const username = comment.from?.username || 'unknown';
-      console.log(`  🎯 "${keyword}" by @${username} → sending DM…`);
+      const username = comment.from?.username || 'there';
+      console.log(`  🎯 "${keyword}" by @${username} → replying…`);
 
-      const result = await sendDM(comment.id, DM_REPLIES[keyword]);
+      const result = await replyToComment(comment.id, username, REPLIES[keyword]);
 
-      if (result.message_id || result.recipient_id) {
-        console.log(`  ✅ DM sent to @${username}`);
+      if (result.id) {
+        console.log(`  ✅ Reply posted`);
         sent++;
       } else {
-        console.warn(`  ⚠️  DM failed:`, JSON.stringify(result));
+        console.warn(`  ⚠️  Reply failed:`, JSON.stringify(result));
       }
 
       await new Promise(r => setTimeout(r, 500));
@@ -101,7 +98,7 @@ async function main() {
   }
 
   saveProcessed(processed);
-  console.log(`\n✅ Done — ${sent} DM(s) sent, ${processed.size} comments tracked total`);
+  console.log(`\n✅ Done — ${sent} reply/replies sent, ${processed.size} comments tracked total`);
 }
 
 main().catch(err => {

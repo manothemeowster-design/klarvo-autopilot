@@ -151,6 +151,10 @@ Return ONLY valid JSON. No markdown. No backticks. No extra text:
   "caption_line": "ONE punchy sentence max 12 words. The gut-punch hook of this carousel. No emojis. No fluff."
 }`;
 
+const VARIETY_SEED = ['Loss angle','Fear angle','Curiosity angle','Story angle','Proof angle','Shock angle','Question angle','Competitor angle'];
+const _seedIdx = Math.floor(Date.now() / (1000*60*60*6)) % VARIETY_SEED.length;
+const CURRENT_VARIETY = VARIETY_SEED[_seedIdx];
+
 const USER_PROMPT = `
 BRIEF:
 - Pillar: ${pillar}
@@ -168,6 +172,8 @@ ${pillar === 'EDUCATION' ? "Explain ONE specific AI thing simply — like explai
 
 Slide 1 hook: use ${hookStyle} style.
 Make every word hit hard. Cut anything that doesn't.
+VARIETY DIRECTION THIS POST: ${CURRENT_VARIETY} — make sure this carousel feels completely different from the last one.
+FORBIDDEN: Do not start the hook with "$4,200" or "62%" or any stat you've used before — be original every time.
 `;
 
 // ─── GENERATE CONTENT ─────────────────────────────────────────────────────────
